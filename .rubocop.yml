@@ -1,0 +1,138 @@
+# Common configuration
+AllCops:
+  TargetRubyVersion: 3.4
+  DisplayCopNames: true
+  NewCops: enable
+  ExtraDetails: true
+  SuggestExtensions: false
+
+# Enforce double quotes
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+  ConsistentQuotesInMultiline: true
+
+# Enforce double quotes in string interpolations
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+# Layout and formatting
+Layout/LineLength:
+  Max: 120
+  # Allow long lines for URLs, heredocs, and comments
+  AllowURI: true
+  IgnoreCopDirectives: true
+
+# Method and class length
+Metrics/MethodLength:
+  Max: 20
+  CountComments: false
+
+Metrics/ClassLength:
+  Max: 150
+  CountComments: false
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/BlockLength:
+  Max: 30
+  Exclude:
+    - '**/*.gemspec'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+# Style preferences
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: true
+  EnforcedStyle: compact
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+# Modern Ruby features
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: ruby19_no_mixed_keys
+  EnforcedShorthandSyntax: either
+
+Style/MethodDefParentheses:
+  Enabled: true
+  EnforcedStyle: require_parentheses
+
+Style/EmptyMethod:
+  Enabled: true
+  EnforcedStyle: expanded
+
+# Security cops
+Security/Eval:
+  Enabled: true
+
+Security/JSONLoad:
+  Enabled: true
+  SafeAutoCorrect: true
+
+# Lint cops
+Lint/AmbiguousOperator:
+  Enabled: true
+
+Lint/AmbiguousRegexpLiteral:
+  Enabled: true
+
+Lint/AssignmentInCondition:
+  Enabled: true
+
+Lint/ElseLayout:
+  Enabled: true
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/UnreachableCode:
+  Enabled: true
+
+Lint/UselessAccessModifier:
+  Enabled: true
+
+Lint/UselessAssignment:
+  Enabled: true
+
+Lint/BinaryOperatorWithIdenticalOperands:
+  Enabled: true
+
+Lint/UselessElseWithoutRescue:
+  Enabled: true
+
+Lint/ShadowingOuterLocalVariable:
+  Enabled: true
+
+# Naming conventions
+Naming/AccessorMethodName:
+  Enabled: true
+
+Naming/AsciiIdentifiers:
+  Enabled: true
+
+Naming/FileName:
+  Enabled: true
+
+Naming/PredicatePrefix:
+  Enabled: true
+  NamePrefix:
+    - is_
+    - has_
+    - have_
+  ForbiddenPrefixes:
+    - is_
+    - has_
+    - have_
