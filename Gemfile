@@ -4,10 +4,12 @@ source "https://rubygems.org"
 ruby File.read(File.join(__dir__, ".ruby-version")).rstrip
 
 gem "mcp"
+gem "zeitwerk"
 
 gem "openssl", "~> 3.3.1"
 gem "rake"
 
+gem "dry-initializer"
 gem "dry-struct"
 gem "dry-types"
 gem "resol", git: "https://github.com/umbrellio/resol", branch: "feature/add-dry-initializer"

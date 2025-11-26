@@ -6,6 +6,10 @@ AllCops:
   ExtraDetails: true
   SuggestExtensions: false
 
+Style/HashConversion:
+  Enabled: true
+  Exclude: ["spec/**/*"]
+
 # Enforce double quotes
 Style/StringLiterals:
   Enabled: true

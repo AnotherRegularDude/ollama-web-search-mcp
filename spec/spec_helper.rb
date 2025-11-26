@@ -5,6 +5,8 @@ require "webmock/rspec"
 require_relative "../config/application"
 
 RSpec.configure do |config|
+  WebMock.disable_net_connect!
+
   # Enable color output
   config.color = true
 
