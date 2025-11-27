@@ -8,7 +8,7 @@
 class MCPExt::ServerFactory
   # Mutable attributes structure for server configuration
   MutableAttributes = Struct.new(:tools, :transport, keyword_init: true)
-  
+
   # Default name for the MCP server
   DEFAULT_NAME = "ollama-web-search"
 

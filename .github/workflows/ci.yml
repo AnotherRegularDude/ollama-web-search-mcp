@@ -59,3 +59,23 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  documentation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install YARD
+        run: gem install yard
+
+      - name: Check documentation coverage
+        run: |
+          # Check documentation coverage (ignore warnings)
+          yard stats 2>/dev/null | grep -q "100.00% documented" || { echo "Documentation coverage is not 100%"; exit 1; }
+          echo "Documentation coverage: 100%"

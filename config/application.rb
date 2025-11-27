@@ -11,6 +11,7 @@ require "bundler/setup"
 Bundler.require(:default)
 
 require "puma/configuration"
+require "net/http"
 
 root_path = Pathname(File.join(__dir__, ".."))
 
