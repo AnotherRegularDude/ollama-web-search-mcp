@@ -1,17 +1,81 @@
 # Ollama Web Search MCP Server
 
+[![Coverage Status](https://coveralls.io/repos/github/AnotherRegularDude/ollama-web-search-mcp/badge.svg?branch=main)](https://coveralls.io/github/AnotherRegularDude/ollama-web-search-mcp?branch=main)
+
 A Model Context Protocol (MCP) server that provides web search capabilities to AI assistants using the Ollama web search API. This server allows LLMs to access real-time information from the web through standardized MCP interfaces.
+
+## Quickstart: Run the MCP Server
+
+The server needs Ruby 3.4.7, Bundler, and an `OLLAMA_API_KEY`.
+
+1. Install dependencies:
+   ```bash
+   bundle install
+   ```
+2. Export the API key:
+   ```bash
+   export OLLAMA_API_KEY="your-api-key-here"
+   ```
+
+### STDIO transport
+
+Local MCP clients can launch the STDIO server directly:
+
+```bash
+# Start via Ruby
+bundle exec ruby bin/mcp_server
+
+# Or via Rake
+bundle exec rake start
+```
+
+### HTTP transport
+
+Expose the MCP server over HTTP (defaults to port 8080):
+
+```bash
+bundle exec ruby bin/http_server           # port 8080
+bundle exec ruby bin/http_server 3000      # custom port
+
+# Or via Rake
+bundle exec rake start_http                # port 8080
+bundle exec rake "start_http[3000]"          # custom port
+```
+
+### Sample tool request
+
+With the HTTP server running, you can invoke the `web_search` tool over HTTP:
+
+```bash
+curl -s http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "tools/call",
+    "params": {
+      "name": "web_search",
+      "arguments": {
+        "query": "latest AI news",
+        "max_results": 2
+      }
+    }
+  }'
+```
+
+The response contains formatted search results inside `result.content[0].text`.
 
 ## Table of Contents
 
+- [Quickstart: Run the MCP Server](#quickstart-run-the-mcp-server)
+  - [STDIO transport](#stdio-transport)
+  - [HTTP transport](#http-transport)
+  - [Sample tool request](#sample-tool-request)
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage](#usage)
-  - [Running as STDIO Server](#running-as-stdio-server)
-  - [Running as HTTP Server](#running-as-http-server)
 - [API Reference](#api-reference)
   - [Web Search Tool](#web-search-tool)
 - [Development](#development)
@@ -24,6 +88,7 @@ A Model Context Protocol (MCP) server that provides web search capabilities to A
   - [Data Layer](#data-layer)
 - [Contributing](#contributing)
 - [License](#license)
+- [Additional Resources](#additional-resources)
 
 ## Overview
 
@@ -64,44 +129,6 @@ The server requires an Ollama API key to function. Set the `OLLAMA_API_KEY` envi
 
 ```bash
 export OLLAMA_API_KEY="your-api-key-here"
-```
-
-## Usage
-
-### Running as STDIO Server
-
-To run the server using STDIO transport (suitable for direct integration with AI assistants):
-
-```bash
-ruby bin/mcp_server
-```
-
-Or using the Rake task:
-
-```bash
-rake start
-```
-
-### Running as HTTP Server
-
-To run the server using HTTP transport:
-
-```bash
-# Default port 8080
-ruby bin/http_server
-
-# Custom port
-ruby bin/http_server 3000
-```
-
-Or using the Rake task:
-
-```bash
-# Default port 8080
-rake start_http
-
-# Custom port
-rake start_http[3000]
 ```
 
 ## API Reference
