@@ -24,7 +24,8 @@ bin/*
 .bundle
 
 # Documentation
-/doc/
+doc/
+.yardoc/
 
 # IntelliJ IDEA
 /.idea/

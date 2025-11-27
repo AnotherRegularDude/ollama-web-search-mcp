@@ -6,10 +6,10 @@ ruby File.read(File.join(__dir__, ".ruby-version")).rstrip
 gem "mcp"
 gem "puma"
 gem "rack"
-gem "rake"
 gem "zeitwerk"
 
 gem "openssl", "~> 3.3.1"
+gem "rake"
 
 gem "dry-initializer"
 gem "dry-struct"
