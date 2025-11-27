@@ -13,6 +13,8 @@ module Adapters::OllamaGateway
 
     body = JSON.parse(response.body)
     body.fetch("results", [])
+  rescue Timeout::Error => e
+    raise HTTPError, "HTTP Timeout: #{e.message}"
   end
 
   def build_payload(query, max_results)

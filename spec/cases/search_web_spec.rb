@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 describe Cases::SearchWeb do
+  def run
+    described_class.call(query, **{ max_results: max_results }.compact)
+  end
+
   def run!
-    described_class.call!(query, **{ max_results: max_results }.compact)
+    run.value!
   end
 
   def stub_web_search(body)
@@ -74,9 +78,13 @@ describe Cases::SearchWeb do
     end
 
     it "propagates HTTPError" do
-      expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError)
+      result = run
 
       expect(requests.size).to eq(1)
+
+      expect(result.failure?).to eq(true)
+      expect(result.error.code).to eq(:request_failed)
+      expect(result.error.data[:message]).to eq("Error: HTTP 500 - Failure")
     end
   end
 end

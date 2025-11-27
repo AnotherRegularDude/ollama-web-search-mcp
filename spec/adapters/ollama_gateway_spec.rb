@@ -65,4 +65,12 @@ describe Adapters::OllamaGateway do
       expect(requests.size).to eq(1)
     end
   end
+
+  context "when connection times out" do
+    before { stub_request(:post, "https://ollama.com/api/web_search").to_timeout }
+
+    it "returns timeout error" do
+      expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError, "HTTP Timeout: execution expired")
+    end
+  end
 end

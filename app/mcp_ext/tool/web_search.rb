@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Interfaces::WebSearchTool < Interfaces::MCPTool
+class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
   description "A tool that provides access to searching the internet using Ollama's web search API."
   input_schema(
     properties: {
@@ -16,14 +16,15 @@ class Interfaces::WebSearchTool < Interfaces::MCPTool
   )
 
   class << self
-    def call(query:, max_results: Application.max_results_by_default)
-      results = Cases::SearchWeb.call!(query, max_results: max_results)
-      response_from_text(format_results(results, query))
-    rescue Adapters::OllamaGateway::HTTPError => e
-      response_from_text(e.message)
-    end
-
     private
+
+    def proceed_execution!(data)
+      query = data.delete(:query)
+      results = Cases::SearchWeb.call(query, **data).value_or { |error| return render(error.data[:message]) }
+      render(format_results(results, query))
+    rescue ArgumentError => e
+      render(e.message)
+    end
 
     def format_results(results, query)
       return "No results found for query: #{query}" if results.empty?
@@ -32,15 +33,21 @@ class Interfaces::WebSearchTool < Interfaces::MCPTool
     end
 
     def build_results_output(results, query)
-      formatted_results = "Search results for: #{query}\n\n"
+      output = "Search results for: #{query}\n\n"
 
       results.each_with_index do |result, index|
-        formatted_results << "#{index + 1}. #{result.title}\n"
-        formatted_results << "   URL: #{result.url}\n"
-        formatted_results << "   Content: #{result.content}\n\n"
+        output << format_result(index + 1, result)
       end
 
-      formatted_results
+      output
+    end
+
+    def format_result(number, result)
+      <<~RESULT
+        #{number}. #{result.title}
+          URL: #{result.url}
+          Content: #{result.content}
+      RESULT
     end
   end
 end

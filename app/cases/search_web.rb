@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class Cases::SearchWeb < Cases::Abstract
+class Cases::SearchWeb < ServiceObject
   param :query, Types::String
-  option :max_results, Types::Integer, optional: true
+  option :max_results, Types::Integer.constrained(included_in: 1...10), optional: true
 
   def call
     self.results = search!
@@ -20,6 +20,8 @@ class Cases::SearchWeb < Cases::Abstract
       query: query,
       max_results: max_results || Application.max_results_by_default,
     )
+  rescue Adapters::OllamaGateway::HTTPError => e
+    fail!(:request_failed, { message: e.message })
   end
 
   def map_results!

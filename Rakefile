@@ -9,13 +9,13 @@ task default: :spec
 
 desc "Start the STDIO MCP server"
 task :start do
-  exec "ruby bin/mcp_server.rb"
+  exec "bin/mcp_server"
 end
 
 desc "Start the HTTP MCP server"
 task :start_http, [:port] do |_t, args|
-  port = args[:port] || 8080
-  exec "ruby bin/http_server.rb #{port}"
+  port = args[:port]
+  exec "bin/http_server #{port}"
 end
 
 desc "Run RuboCop"
