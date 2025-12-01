@@ -18,7 +18,6 @@
 .rubocop_cache/
 
 # Bundler
-bin/*
 !bin/mcp_server.rb
 !bin/http_server.rb
 .bundle

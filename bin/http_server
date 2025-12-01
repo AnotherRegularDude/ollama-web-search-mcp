@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Main entry point for the HTTP MCP server.
+#
+# This script starts the MCP server using HTTP transport, which exposes the
+# MCP functionality through a web API endpoint.
+#
+# @param port [String] the port number to listen on (optional, defaults to 8080)
+
+# Sets the BUNDLE_GEMFILE environment variable to point to the Gemfile in the parent directory.
+# This ensures Bundler can locate and use the correct Gemfile when requiring dependencies,
+# regardless of the current working directory from which the script is executed.
+# The ||= operator ensures we don't override the variable if it's already set, allowing for
+# environment-specific overrides when needed.
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+
+require_relative "../config/application"
+
+port = Integer(ARGV.first, exception: false)
+
+MCPExt::ServerFactory
+  .with_defaults
+  .with_transport(Entities::Transport.new(type: :http, data: { port: }.compact))
+  .build
+  .call
