@@ -100,7 +100,7 @@ describe MCPExt::Tool::WebSearch do
       response = run!
 
       expect(response).to be_a(MCP::Tool::Response)
-      expect(response.content.first).to eq(type: "text", text: "Argument[0] is invalid: included_in?(1...10, 0)")
+      expect(response.content.first).to eq(type: "text", text: "Argument[0] is invalid: included_in?(1..10, 0)")
       expect(requests.size).to eq(0)
     end
   end
@@ -112,7 +112,7 @@ describe MCPExt::Tool::WebSearch do
       response = run!
 
       expect(response).to be_a(MCP::Tool::Response)
-      expect(response.content.first).to eq(type: "text", text: "Argument[11] is invalid: included_in?(1...10, 11)")
+      expect(response.content.first).to eq(type: "text", text: "Argument[11] is invalid: included_in?(1..10, 11)")
       expect(requests.size).to eq(0)
     end
   end

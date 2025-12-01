@@ -14,7 +14,7 @@ class Cases::SearchWeb < ServiceObject
   #   @return [Integer] maximum number of results to return (optional)
 
   param :query, Types::String
-  option :max_results, Types::Integer.constrained(included_in: 1...10), optional: true
+  option :max_results, Types::Integer.constrained(included_in: 1..10), optional: true
 
   # Executes the web search and returns the results
   #

@@ -1,6 +1,6 @@
 # Ollama Web Search MCP Server
 
-[![Coverage Status](https://coveralls.io/repos/github/AnotherRegularDude/ollama-web-search-mcp/badge.svg?branch=main)](https://coveralls.io/github/AnotherRegularDude/ollama-web-search-mcp?branch=main)
+[![CI](https://github.com/AnotherRegularDude/ollama-web-search-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnotherRegularDude/ollama-web-search-mcp/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/AnotherRegularDude/ollama-web-search-mcp/badge.svg?branch=main)](https://coveralls.io/github/AnotherRegularDude/ollama-web-search-mcp?branch=main)
 
 A Model Context Protocol (MCP) server that provides web search capabilities to AI assistants using the Ollama web search API. This server allows LLMs to access real-time information from the web through standardized MCP interfaces.
 
@@ -86,6 +86,7 @@ The response contains formatted search results inside `result.content[0].text`.
   - [Service Layer](#service-layer)
   - [Adapter Layer](#adapter-layer)
   - [Data Layer](#data-layer)
+  - [MCP Layer](#mcp-layer)
 - [Contributing](#contributing)
 - [License](#license)
 - [Additional Resources](#additional-resources)
@@ -114,7 +115,7 @@ This Ruby-based MCP server implementation enables AI assistants to perform web s
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/ollama-web-search-mcp.git
+   git clone https://github.com/AnotherRegularDude/ollama-web-search-mcp.git
    cd ollama-web-search-mcp
    ```
 
@@ -173,13 +174,13 @@ Search results for: {query}
 ├── app/
 │   ├── adapters/           # External service integrations (Ollama gateway)
 │   ├── cases/              # Service objects implementing business logic
-│   ├── entities/           # Data structures and entities
-│   ├── interfaces/         # MCP server implementation
-│   └── types.rb            # Type definitions
+│   ├── entities/           # Typed data structures
+│   └── mcp_ext/            # MCP tools, transports, and server factory
 ├── bin/                    # Executable scripts
-├── config/                 # Application configuration
+├── config/                 # Application configuration and defaults
+├── lib/                    # Shared abstractions (types, service base classes)
 ├── spec/                   # Test files
-└── tmp/                    # Temporary files
+└── tmp/                    # Temporary files (cache, coverage artifacts)
 ```
 
 ### Running Tests
@@ -212,7 +213,7 @@ The project follows a service-oriented architecture with clear separation of con
 
 ### Service Layer
 
-Business logic is encapsulated in service objects located in `app/cases/` that inherit from `Cases::Abstract`. This follows the Resol service pattern with parameter validation using Dry Types.
+Business logic lives in service objects under `app/cases/` that inherit from `ServiceObject`, a Resol-based base class that wraps Dry validation and consistent success/failure handling.
 
 ### Adapter Layer
 
@@ -221,6 +222,13 @@ External service integrations are encapsulated in adapters located in `app/adapt
 ### Data Layer
 
 Entities are implemented using `Dry::Struct` for type-safe data structures. They provide immutable data objects with clear attribute definitions.
+
+### MCP Layer
+
+`app/mcp_ext/` contains the MCP server surface:
+- `Tool::WebSearch` exposes the `web_search` MCP tool and formats responses.
+- `TransportHandler` builds STDIO or HTTP transports.
+- `ServerFactory` wires the server with the selected transport and tools.
 
 ## Contributing
 
