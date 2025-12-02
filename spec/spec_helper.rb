@@ -2,8 +2,6 @@
 
 require "webmock/rspec"
 
-require_relative "../config/application"
-
 if ENV["COVER"]
   require "simplecov"
   require "simplecov-lcov"
@@ -25,6 +23,8 @@ if ENV["COVER"]
     )
   end
 end
+
+require_relative "../config/application"
 
 RSpec.configure do |config|
   WebMock.disable_net_connect!
