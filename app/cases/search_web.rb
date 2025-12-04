@@ -24,7 +24,7 @@ class Cases::SearchWeb < ServiceObject
   # @example Basic usage
   #   result = Cases::SearchWeb.call("ruby programming")
   #   if result.success?
-  #     results = result.value
+  #     results = result.value!
   #     results.each do |item|
   #       puts "#{item.title}: #{item.url}"
   #     end
