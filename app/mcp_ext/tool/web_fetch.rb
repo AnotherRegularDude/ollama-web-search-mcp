@@ -24,6 +24,11 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
     # @option data [String] :url The URL to fetch
     # @return [MCP::Tool::Response] formatted response for the AI assistant
     # @api private
+    #
+    # @example Process a web fetch request
+    #   data = { url: "https://example.com" }
+    #   response = proceed_execution!(data)
+    #   # => MCP::Tool::Response with formatted web content
     def proceed_execution!(data)
       url = data.delete(:url)
       result = Cases::WebFetch.call(url).value_or { |error| return render(error.data[:message]) }
@@ -35,6 +40,16 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
     # @param result [Entities::WebFetchResult] the fetch result
     # @return [String] formatted result string
     # @api private
+    #
+    # @example Format a fetch result
+    #   result = Entities::WebFetchResult.new(
+    #     title: "Example Domain",
+    #     content: "This domain is for use in illustrative examples...",
+    #     links: ["https://example.com/more"]
+    #   )
+    #   output = format_result(result)
+    #   # => "Web page content from: Example Domain\nURL: https://example.com/more\n\n"
+    #       # => "This domain is for use in illustrative examples..."
     def format_result(result)
       build_result_output(result)
     end

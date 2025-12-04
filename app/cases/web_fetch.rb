@@ -20,10 +20,16 @@ class Cases::WebFetch < ServiceObject
   # @example Basic usage
   #   result = Cases::WebFetch.call("https://example.com")
   #   if result.success?
-  #     fetch_result = result.value
+  #     fetch_result = result.value!
   #     puts fetch_result.title
   #     puts fetch_result.content
   #     puts fetch_result.links
+  #   end
+  #
+  # @example Handling fetch errors
+  #   result = Cases::WebFetch.call("https://nonexistent.com")
+  #   if result.failure?
+  #     puts "Failed to fetch: #{result.error[:message]}"
   #   end
   def call
     self.result = fetch!
@@ -36,13 +42,19 @@ class Cases::WebFetch < ServiceObject
 
   # @!attribute [rw] result
   #   @return [Hash] raw fetch result from the API
+  # @api private
 
   attr_accessor :result
 
   # Performs the actual fetch using the Ollama gateway
   #
-  # @return [Hash] raw fetch result from the API
+  # @return [Hash] raw fetch result from the API containing title, content, and links
   # @raise [Adapters::OllamaGateway::HTTPError] if the HTTP request fails
+  #
+  # @example Fetch content from a URL
+  #   fetch!
+  #   # => {"title"=>"Example Domain", "content"=>"...", "links"=>["https://example.com/more"]}
+  # @api private
   def fetch!
     Adapters::OllamaGateway.process_web_fetch!(url: url)
   rescue Adapters::OllamaGateway::HTTPError => e
@@ -52,6 +64,12 @@ class Cases::WebFetch < ServiceObject
   # Maps raw API result to typed entity
   #
   # @return [void]
+  #
+  # @example Map raw result to entity
+  #   result = {"title"=>"Example", "content"=>"...", "links"=>["https://example.com/more"]}
+  #   map_result!
+  #   # result is now an Entities::WebFetchResult object
+  # @api private
   def map_result!
     self.result = Entities::WebFetchResult.new(
       title: result["title"],

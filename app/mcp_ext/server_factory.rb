@@ -15,13 +15,20 @@ class MCPExt::ServerFactory
   # Creates a new factory instance with default configuration
   #
   # @return [MCPExt::ServerFactory] a new factory instance
+  #
+  # @example Create a factory with default settings
+  #   factory = MCPExt::ServerFactory.with_defaults
+  #   # => factory with WebSearch and WebFetch tools and empty transport
   def self.with_defaults
-    new(DEFAULT_NAME).with_tools([MCPExt::Tool::WebSearch])
+    new(DEFAULT_NAME).with_tools([MCPExt::Tool::WebSearch, MCPExt::Tool::WebFetch])
   end
 
   # Initializes a new server factory
   #
-  # @param [String] name the server name
+  # @param name [String] the server name
+  #
+  # @example Create a new factory
+  #   factory = MCPExt::ServerFactory.new("my-server")
   def initialize(name)
     @name = name
     @attributes = MutableAttributes.new(tools: [], transport: nil)
@@ -48,6 +55,15 @@ class MCPExt::ServerFactory
   # Builds and configures the MCP server
   #
   # @return [Resol::Service::Value] a service result containing a proc to start the server
+  #
+  # @example Build a server configuration
+  #   factory = MCPExt::ServerFactory.with_defaults
+  #   transport = Entities::Transport.new(type: :stdio, data: {})
+  #   result = factory.with_transport(transport).build
+  #   if result.success?
+  #     start_server = result.value!
+  #     # start_server.call to start the server
+  #   end
   def build
     server = MCP::Server.new(
       name: @name,

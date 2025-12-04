@@ -31,6 +31,11 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
     # @option data [Integer] :max_results Maximum results to return (optional)
     # @return [MCP::Tool::Response] formatted response for the AI assistant
     # @api private
+    #
+    # @example Process a web search request
+    #   data = { query: "ruby programming", max_results: 3 }
+    #   response = proceed_execution!(data)
+    #   # => MCP::Tool::Response with formatted search results
     def proceed_execution!(data)
       query = data.delete(:query)
       results = Cases::SearchWeb.call(query, **data).value_or { |error| return render(error.data[:message]) }
@@ -43,6 +48,16 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
     # @param query [String] the original search query
     # @return [String] formatted results string
     # @api private
+    #
+    # @example Format search results
+    #   results = [
+    #     Entities::Result.new(title: "Ruby", url: "https://ruby-lang.org", content: "Ruby is a programming language"),
+    #     Entities::Result.new(title: "Rails", url: "https://rubyonrails.org", content: "Rails is a web framework")
+    #   ]
+    #   output = format_results(results, "ruby programming")
+    #   # => "Search results for: ruby programming\n\n1. Ruby\n  URL: https://ruby-lang.org\n  Content: Ruby is a..."
+    #       # => "programming language\n\n2. Rails\n  URL: https://rubyonrails.org\n  Content: Rails is a web..."
+    #       # => "framework\n\n"
     def format_results(results, query)
       return "No results found for query: #{query}" if results.empty?
 

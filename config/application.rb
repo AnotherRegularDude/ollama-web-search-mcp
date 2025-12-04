@@ -34,6 +34,10 @@ module Application
   #
   # @return [String] the Ollama API key
   # @raise [KeyError] if the OLLAMA_API_KEY environment variable is not set
+  #
+  # @example Get the API key
+  #   api_key = Application.fetch_api_key
+  #   # => "ollama-api-key-value"
   def fetch_api_key
     @fetch_api_key ||= ENV.fetch("OLLAMA_API_KEY")
   end
@@ -41,10 +45,18 @@ module Application
   # Returns the default maximum number of search results
   #
   # @return [Integer] the default maximum results (5)
+  #
+  # @example Get the default max results
+  #   max_results = Application.max_results_by_default
+  #   # => 5
   def max_results_by_default = 5
 
   # Returns the default HTTP server port
   #
   # @return [Integer] the default port (8080)
+  #
+  # @example Get the default port
+  #   port = Application.default_http_server_port
+  #   # => 8080
   def default_http_server_port = 8080
 end

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AnotherRegularDude/ollama-web-search-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnotherRegularDude/ollama-web-search-mcp/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/AnotherRegularDude/ollama-web-search-mcp/badge.svg?branch=main)](https://coveralls.io/github/AnotherRegularDude/ollama-web-search-mcp?branch=main)
 
-A Model Context Protocol (MCP) server that provides web search capabilities to AI assistants using the Ollama web search API. This server allows LLMs to access real-time information from the web through standardized MCP interfaces.
+A Model Context Protocol (MCP) server that provides web search and web fetch capabilities to AI assistants using the Ollama web search API. This server allows LLMs to access real-time information from the web through standardized MCP interfaces.
 
 ## Quickstart: Run the MCP Server
 
@@ -39,13 +39,14 @@ bundle exec ruby bin/http_server 3000      # custom port
 
 # Or via Rake
 bundle exec rake start_http                # port 8080
-bundle exec rake "start_http[3000]"          # custom port
+bundle exec rake "start_http[3000]"        # custom port
 ```
 
-### Sample tool request
+### Sample tool requests
 
-With the HTTP server running, you can invoke the `web_search` tool over HTTP:
+With the HTTP server running, you can invoke the `web_search` and `web_fetch` tools over HTTP:
 
+#### Web Search Tool
 ```bash
 curl -s http://localhost:8080/ \
   -H "Content-Type: application/json" \
@@ -63,14 +64,31 @@ curl -s http://localhost:8080/ \
   }'
 ```
 
-The response contains formatted search results inside `result.content[0].text`.
+#### Web Fetch Tool
+```bash
+curl -s http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "tools/call",
+    "params": {
+      "name": "web_fetch",
+      "arguments": {
+        "url": "https://example.com"
+      }
+    }
+  }'
+```
+
+The response contains formatted content inside `result.content[0].text`.
 
 ## Table of Contents
 
 - [Quickstart: Run the MCP Server](#quickstart-run-the-mcp-server)
   - [STDIO transport](#stdio-transport)
   - [HTTP transport](#http-transport)
-  - [Sample tool request](#sample-tool-request)
+  - [Sample tool requests](#sample-tool-requests)
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -78,6 +96,7 @@ The response contains formatted search results inside `result.content[0].text`.
 - [Configuration](#configuration)
 - [API Reference](#api-reference)
   - [Web Search Tool](#web-search-tool)
+  - [Web Fetch Tool](#web-fetch-tool)
 - [Development](#development)
   - [Project Structure](#project-structure)
   - [Running Tests](#running-tests)
@@ -93,14 +112,16 @@ The response contains formatted search results inside `result.content[0].text`.
 
 ## Overview
 
-This Ruby-based MCP server implementation enables AI assistants to perform web searches using the Ollama web search API. The project follows the MCP specification to provide a standardized way for AI models to access external information.
+This Ruby-based MCP server implementation enables AI assistants to perform web searches and fetch web content using the Ollama web search API. The project follows the MCP specification to provide a standardized way for AI models to access external information.
 
 ## Features
 
 - Web search functionality through Ollama's web search API
+- Web fetch functionality to retrieve content from specific URLs
 - Standardized MCP interface for AI assistant integration
-- Configurable result limits (1-10 results)
+- Configurable result limits (1-10 results for search)
 - Structured search results with title, URL, and content
+- Web fetch results with title, content, and links
 - Support for both STDIO and HTTP transport protocols
 - Type-safe data structures using Dry::Struct
 - Comprehensive error handling
@@ -136,7 +157,7 @@ export OLLAMA_API_KEY="your-api-key-here"
 
 ### Web Search Tool
 
-The server exposes a single tool for web search:
+The server exposes a tool for web search:
 
 **Tool Name**: `web_search`
 
@@ -163,6 +184,30 @@ Search results for: {query}
 {
   "query": "latest news about AI",
   "max_results": 3
+}
+```
+
+### Web Fetch Tool
+
+The server also exposes a tool for fetching web content:
+
+**Tool Name**: `web_fetch`
+
+**Parameters**:
+- `url` (string, required): The URL of the web page to fetch
+
+**Response Format**:
+```
+Web page content from: {title}
+URL: {first_link}
+
+{content}
+```
+
+**Example Request**:
+```json
+{
+  "url": "https://example.com"
 }
 ```
 
@@ -227,6 +272,7 @@ Entities are implemented using `Dry::Struct` for type-safe data structures. They
 
 `app/mcp_ext/` contains the MCP server surface:
 - `Tool::WebSearch` exposes the `web_search` MCP tool and formats responses.
+- `Tool::WebFetch` exposes the `web_fetch` MCP tool and formats responses.
 - `TransportHandler` builds STDIO or HTTP transports.
 - `ServerFactory` wires the server with the selected transport and tools.
 
