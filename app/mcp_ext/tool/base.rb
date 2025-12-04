@@ -14,6 +14,8 @@ class MCPExt::Tool::Base < MCP::Tool
     # @return [MCP::Tool::Response] the tool response
     def call(**data)
       proceed_execution!(data)
+    rescue ArgumentError => e
+      render(e.message)
     end
 
     private

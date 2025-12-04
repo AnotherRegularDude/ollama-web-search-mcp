@@ -88,6 +88,17 @@ describe Adapters::OllamaGateway do
       end
     end
 
+    context "when response status is not 200" do
+      let(:response_status) { 404 }
+      let(:response_body) { "Not Found Error" }
+
+      it "raises HTTPError" do
+        expect { run_fetch! }.to raise_error(Adapters::OllamaGateway::HTTPError, "Error: HTTP 404 - Not Found Error")
+
+        expect(requests.size).to eq(1)
+      end
+    end
+
     context "when connection times out" do
       before { stub_request(:post, "https://ollama.com/api/web_fetch").to_timeout }
 

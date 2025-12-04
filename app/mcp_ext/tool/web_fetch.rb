@@ -28,8 +28,6 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
       url = data.delete(:url)
       result = Cases::WebFetch.call(url).value_or { |error| return render(error.data[:message]) }
       render(format_result(result))
-    rescue ArgumentError => e
-      render(e.message)
     end
 
     # Formats the fetch result for presentation to the AI assistant

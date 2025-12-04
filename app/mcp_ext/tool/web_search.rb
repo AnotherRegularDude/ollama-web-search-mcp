@@ -35,8 +35,6 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
       query = data.delete(:query)
       results = Cases::SearchWeb.call(query, **data).value_or { |error| return render(error.data[:message]) }
       render(format_results(results, query))
-    rescue ArgumentError => e
-      render(e.message)
     end
 
     # Formats the search results for presentation to the AI assistant

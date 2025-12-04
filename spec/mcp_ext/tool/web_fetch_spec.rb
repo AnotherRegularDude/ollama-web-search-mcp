@@ -48,7 +48,7 @@ describe MCPExt::Tool::WebFetch do
     text.chomp # Remove the trailing newline added by the heredoc
   end
   it "returns formatted MCP response with rendered results" do
-    response = run!(url: url)
+    response = run!(url:)
     expect(response).to be_a(MCP::Tool::Response)
     expect(response.content.first).to eq(type: "text", text: expected_output)
 
@@ -61,7 +61,7 @@ describe MCPExt::Tool::WebFetch do
     let(:response_body) { "failure" }
 
     it "returns error message through MCP response" do
-      response = run!(url: url)
+      response = run!(url:)
 
       expect(response).to be_a(MCP::Tool::Response)
       expect(response.content.first).to eq(type: "text", text: "Error: HTTP 500 - failure")
@@ -73,8 +73,42 @@ describe MCPExt::Tool::WebFetch do
     before { stub_request(:post, "https://ollama.com/api/web_fetch").to_timeout }
 
     it "returns timeout error" do
-      response = run!(url: url)
+      response = run!(url:)
       expect(response.content.first).to eq(type: "text", text: "HTTP Timeout: execution expired")
+    end
+  end
+
+  context "when some unhandled error occurs" do
+    before do
+      allow(Cases::WebFetch).to receive(:call).and_raise(ArgumentError, "Some unhandled error")
+    end
+
+    it "responses with error's message" do
+      response = run!(url:)
+      expect(response.content.first).to eq(type: "text", text: "Some unhandled error")
+    end
+  end
+
+  context "when links are empty" do
+    let(:response_body) do
+      {
+        title: "Example Page",
+        content: "This is the content of the page.",
+        links: [],
+      }
+    end
+
+    let(:expected_output_without_links) do
+      <<~TEXT.chomp
+        Web page content from: Example Page
+        This is the content of the page.
+      TEXT
+    end
+
+    it "returns formatted output without links" do
+      response = run!(url:)
+      expect(response).to be_a(MCP::Tool::Response)
+      expect(response.content.first).to eq(type: "text", text: expected_output_without_links)
     end
   end
 end
