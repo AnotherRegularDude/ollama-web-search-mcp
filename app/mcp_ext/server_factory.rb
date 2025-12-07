@@ -54,16 +54,14 @@ class MCPExt::ServerFactory
 
   # Builds and configures the MCP server
   #
-  # @return [Resol::Service::Value] a service result containing a proc to start the server
+  # @return [Proc] a proc to start the server
+  # @raise [StandardError] if transport handler fails
   #
   # @example Build a server configuration
   #   factory = MCPExt::ServerFactory.with_defaults
   #   transport = Entities::Transport.new(type: :stdio, data: {})
-  #   result = factory.with_transport(transport).build
-  #   if result.success?
-  #     start_server = result.value!
-  #     # start_server.call to start the server
-  #   end
+  #   start_server = factory.with_transport(transport).build
+  #   start_server.call # to start the server
   def build
     server = MCP::Server.new(
       name: @name,

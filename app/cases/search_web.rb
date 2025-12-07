@@ -20,14 +20,21 @@ class Cases::SearchWeb < ServiceObject
   #
   # @return [Resol::Service::Value] a service result containing an array of {Entities::Result} objects
   # @raise [ArgumentError] if the parameters are invalid
+  # @raise [self::Failure] if using `call!` and the service fails
   #
-  # @example Basic usage
+  # @example Basic usage with result monad
   #   result = Cases::SearchWeb.call("ruby programming")
   #   if result.success?
   #     results = result.value!
   #     results.each do |item|
   #       puts "#{item.title}: #{item.url}"
   #     end
+  #   end
+  #
+  # @example Using call! to automatically unwrap the result
+  #   results = Cases::SearchWeb.call!("ruby programming")
+  #   results.each do |item|
+  #     puts "#{item.title}: #{item.url}"
   #   end
   #
   # @example With maximum results limit

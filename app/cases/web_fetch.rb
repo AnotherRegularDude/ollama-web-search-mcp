@@ -16,8 +16,9 @@ class Cases::WebFetch < ServiceObject
   #
   # @return [Resol::Service::Value] a service result containing a {Entities::WebFetchResult} object
   # @raise [ArgumentError] if the parameters are invalid
+  # @raise [self::Failure] if using `call!` and the service fails
   #
-  # @example Basic usage
+  # @example Basic usage with result monad
   #   result = Cases::WebFetch.call("https://example.com")
   #   if result.success?
   #     fetch_result = result.value!
@@ -25,6 +26,12 @@ class Cases::WebFetch < ServiceObject
   #     puts fetch_result.content
   #     puts fetch_result.links
   #   end
+  #
+  # @example Using call! to automatically unwrap the result
+  #   fetch_result = Cases::WebFetch.call!("https://example.com")
+  #   puts fetch_result.title
+  #   puts fetch_result.content
+  #   puts fetch_result.links
   #
   # @example Handling fetch errors
   #   result = Cases::WebFetch.call("https://nonexistent.com")
