@@ -73,6 +73,7 @@ class Cases::WebFetch < ServiceObject
   def map_result!
     self.result = Entities::WebFetchResult.new(
       title: result["title"],
+      url: url,
       content: result["content"],
       links: result["links"],
     )

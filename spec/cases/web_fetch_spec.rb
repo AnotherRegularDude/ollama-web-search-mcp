@@ -21,6 +21,7 @@ describe Cases::WebFetch do
 
     expect(result).to be_a(Entities::WebFetchResult)
     expect(result.title).to eq("Example Page")
+    expect(result.url).to eq("https://example.com")
     expect(result.content).to eq("This is the content of the page.")
     expect(result.links).to eq(["https://example.com", "https://example.com/about"])
 

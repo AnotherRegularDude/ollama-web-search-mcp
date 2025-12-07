@@ -44,6 +44,10 @@ describe MCPExt::Tool::WebFetch do
       URL: https://example.com
 
       This is the content of the page.
+
+      Links:
+      - https://example.com
+      - https://example.com/about
     TEXT
     text.chomp # Remove the trailing newline added by the heredoc
   end
@@ -101,6 +105,8 @@ describe MCPExt::Tool::WebFetch do
     let(:expected_output_without_links) do
       <<~TEXT.chomp
         Web page content from: Example Page
+        URL: https://example.com
+
         This is the content of the page.
       TEXT
     end
@@ -109,6 +115,35 @@ describe MCPExt::Tool::WebFetch do
       response = run!(url:)
       expect(response).to be_a(MCP::Tool::Response)
       expect(response.content.first).to eq(type: "text", text: expected_output_without_links)
+    end
+  end
+
+  context "when returned links differ from requested url" do
+    let(:response_body) do
+      {
+        title: "Example Page",
+        content: "Content",
+        links: ["https://other.com/page"],
+      }
+    end
+
+    let(:expected_output) do
+      <<~TEXT.chomp
+        Web page content from: Example Page
+        URL: https://example.com
+
+        Content
+
+        Links:
+        - https://other.com/page
+      TEXT
+    end
+
+    it "still shows the requested url and lists extracted links" do
+      response = run!(url:)
+
+      expect(response).to be_a(MCP::Tool::Response)
+      expect(response.content.first).to eq(type: "text", text: expected_output)
     end
   end
 end

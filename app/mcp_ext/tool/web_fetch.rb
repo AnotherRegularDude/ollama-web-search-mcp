@@ -60,11 +60,23 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
     # @return [String] formatted output string
     # @api private
     def build_result_output(result)
-      output = "Web page content from: #{result.title}\n"
-      output << "URL: #{result.links.first}\n\n" if result.links.any?
-      output << result.content
+      [].tap do |lines|
+        lines << "Web page content from: #{result.title}"
+        lines << "URL: #{result.url}"
+        lines << "" if result.content
+        lines << result.content if result.content
+        lines << "" if result.links.any?
+        lines << format_links(result.links) if result.links.any?
+      end.join("\n")
+    end
 
-      output
+    # Formats links collection for output
+    #
+    # @param links [Array<String>] links extracted from the page
+    # @return [String] formatted links section
+    # @api private
+    def format_links(links)
+      ["Links:", *links.map { |link| "- #{link}" }].join("\n")
     end
   end
 end
