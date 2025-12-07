@@ -77,7 +77,7 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
         output << format_result(index + 1, result)
       end
 
-      output
+      output.chomp
     end
 
     # Formats a single search result

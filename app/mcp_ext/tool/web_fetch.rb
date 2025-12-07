@@ -84,14 +84,5 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
         buffer.string.chomp
       end
     end
-
-    # Formats links collection for output
-    #
-    # @param links [Array<String>] links extracted from the page
-    # @return [String] formatted links section
-    # @api private
-    def format_links(links)
-      ["Links:", *links.map { |link| "- #{link}" }].join("\n")
-    end
   end
 end

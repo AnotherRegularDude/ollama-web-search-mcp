@@ -20,7 +20,7 @@ describe Cases::SearchWeb do
   it "returns typed results and forwards params to gateway" do
     results = run!
 
-    expect(results.size).to eq(1)
+    expect(results.size).to eq(2)
     first = results.first
     expect(first).to be_a(Entities::Result)
     expect(first.title).to eq("Title one")

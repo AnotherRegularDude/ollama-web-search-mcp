@@ -41,6 +41,6 @@ end
 __END__
 
 search_response: |
-  { "results": [{ "title": "Title one", "url": "https://example.com/1", "content": "Content one" }] }
+  { "results": [{ "title": "Title one", "url": "https://example.com/1", "content": "Content one" }, { "title": "Title two", "url": "https://example.com/2", "content": "Content two" }] }
 fetch_response: |
   { "title": "Example Page", "content": "This is the content of the page.", "links": ["https://example.com", "https://example.com/about"] }

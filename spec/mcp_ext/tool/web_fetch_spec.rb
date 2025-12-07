@@ -1,42 +1,16 @@
 # frozen_string_literal: true
 
 describe MCPExt::Tool::WebFetch do
+  include_context "ollama request context"
+
   def run!(**data)
     described_class.call(**data)
   end
 
-  def stub_web_fetch
-    stub_request(:post, "https://ollama.com/api/web_fetch").to_return do |request|
-      requests << request
-      {
-        status: response_status,
-        body: serialized_body,
-        headers: { "Content-Type" => "application/json" },
-      }
-    end
-  end
-
-  before { stub_const("Application::ENV", stub_env) }
-  before { stub_web_fetch }
-  after { Application.instance_variable_set(:@fetch_api_key, nil) }
-
-  let(:requests) { [] }
-  let(:stub_env) { Hash["OLLAMA_API_KEY" => api_key] }
-  let(:api_key) { "interface key" }
+  let(:web_action) { "web_fetch" }
+  let(:response_body) { data[:fetch_response] }
 
   let(:url) { "https://example.com" }
-
-  let(:response_status) { 200 }
-  let(:response_body) do
-    {
-      title: "Example Page",
-      content: "This is the content of the page.",
-      links: ["https://example.com", "https://example.com/about"],
-    }
-  end
-  let(:serialized_body) do
-    response_body.is_a?(String) ? response_body : response_body.to_json
-  end
 
   let(:expected_output) do
     <<~TEXT.chomp
@@ -94,13 +68,7 @@ describe MCPExt::Tool::WebFetch do
   end
 
   context "when links are empty" do
-    let(:response_body) do
-      {
-        title: "Example Page",
-        content: "This is the content of the page.",
-        links: [],
-      }
-    end
+    let(:response_body) { Hash[title: "Example Page", content: "This is the content of the page.", links: []].to_json }
 
     let(:expected_output_without_links) do
       <<~TEXT.chomp
@@ -120,13 +88,7 @@ describe MCPExt::Tool::WebFetch do
   end
 
   context "when returned links differ from requested url" do
-    let(:response_body) do
-      {
-        title: "Example Page",
-        content: "Content",
-        links: ["https://other.com/page"],
-      }
-    end
+    let(:response_body) { Hash[title: "Example Page", content: "Content", links: ["https://other.com/page"]].to_json }
 
     let(:expected_output) do
       <<~TEXT.chomp
@@ -141,6 +103,25 @@ describe MCPExt::Tool::WebFetch do
     end
 
     it "still shows the requested url and lists extracted links" do
+      response = run!(url:)
+
+      expect(response).to be_a(MCP::Tool::Response)
+      expect(response.content.first).to eq(type: "text", text: expected_output)
+    end
+  end
+
+  context "when a web page has no content" do
+    let(:response_body) { Hash[title: "Example Page", content: "", links: []].to_json }
+
+    let(:expected_output) do
+      <<~TEXT.chomp
+        # Example Page
+        ## Links
+        URL: https://example.com
+      TEXT
+    end
+
+    it "returns formatted output without content" do
       response = run!(url:)
 
       expect(response).to be_a(MCP::Tool::Response)

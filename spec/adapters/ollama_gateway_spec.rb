@@ -23,9 +23,12 @@ describe Adapters::OllamaGateway do
       results = run!
 
       expect(requests.size).to eq(1)
-      expect(results.size).to eq(1)
+      expect(results.size).to eq(2)
       expect(results.first).to eq(
         { "title" => "Title one", "url" => "https://example.com/1", "content" => "Content one" },
+      )
+      expect(results.last).to eq(
+        { "title" => "Title two", "url" => "https://example.com/2", "content" => "Content two" },
       )
 
       request = requests.first
