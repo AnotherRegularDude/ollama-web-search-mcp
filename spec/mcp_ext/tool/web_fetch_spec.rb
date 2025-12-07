@@ -39,18 +39,18 @@ describe MCPExt::Tool::WebFetch do
   end
 
   let(:expected_output) do
-    text = <<~TEXT
-      Web page content from: Example Page
-      URL: https://example.com
-
+    <<~TEXT.chomp
+      # Example Page
+      ## Content
       This is the content of the page.
-
-      Links:
+      ## Links
+      URL: https://example.com
+      On Page:
       - https://example.com
       - https://example.com/about
     TEXT
-    text.chomp # Remove the trailing newline added by the heredoc
   end
+
   it "returns formatted MCP response with rendered results" do
     response = run!(url:)
     expect(response).to be_a(MCP::Tool::Response)
@@ -104,10 +104,11 @@ describe MCPExt::Tool::WebFetch do
 
     let(:expected_output_without_links) do
       <<~TEXT.chomp
-        Web page content from: Example Page
-        URL: https://example.com
-
+        # Example Page
+        ## Content
         This is the content of the page.
+        ## Links
+        URL: https://example.com
       TEXT
     end
 
@@ -129,12 +130,12 @@ describe MCPExt::Tool::WebFetch do
 
     let(:expected_output) do
       <<~TEXT.chomp
-        Web page content from: Example Page
-        URL: https://example.com
-
+        # Example Page
+        ## Content
         Content
-
-        Links:
+        ## Links
+        URL: https://example.com
+        On Page:
         - https://other.com/page
       TEXT
     end

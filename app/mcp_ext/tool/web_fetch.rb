@@ -54,20 +54,35 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
       build_result_output(result)
     end
 
-    # Builds the complete output string for the result
+    # Builds the complete output string for the result using StringIO
+    #
+    # Generates a markdown-formatted string with:
+    # - Header: "# {title}"
+    # - Content section (if present): "## Content\n{content}"
+    # - Links section: "## Links\nURL: {url}\nOn Page:\n- {link1}\n- {link2}" (if links present)
     #
     # @param result [Entities::WebFetchResult] the fetch result
-    # @return [String] formatted output string
+    # @return [String] formatted markdown output string
     # @api private
     def build_result_output(result)
-      [].tap do |lines|
-        lines << "Web page content from: #{result.title}"
-        lines << "URL: #{result.url}"
-        lines << "" if result.content
-        lines << result.content if result.content
-        lines << "" if result.links.any?
-        lines << format_links(result.links) if result.links.any?
-      end.join("\n")
+      StringIO.open do |buffer|
+        buffer.puts "# #{result.title}"
+
+        unless result.content.empty?
+          buffer.puts "## Content"
+          buffer.puts result.content
+        end
+
+        buffer.puts "## Links"
+        buffer.puts "URL: #{result.url}"
+
+        if result.links.any?
+          buffer.puts "On Page:"
+          result.links.each { |link| buffer.puts "- #{link}" }
+        end
+
+        buffer.string.chomp
+      end
     end
 
     # Formats links collection for output
