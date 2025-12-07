@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 describe Cases::SearchWeb do
+  include_context "ollama request context"
+
   def run
     described_class.call(query, **{ max_results: max_results }.compact)
   end
@@ -9,36 +11,8 @@ describe Cases::SearchWeb do
     run.value!
   end
 
-  def stub_web_search(body)
-    stub_request(:post, "https://ollama.com/api/web_search").to_return do |request|
-      requests << request
-      {
-        status: 200,
-        body: body.to_json,
-        headers: { "Content-Type" => "application/json" },
-      }
-    end
-  end
-
-  before { stub_const("Application::ENV", stub_env) }
-  before { stub_web_search(response_body) }
-  after { Application.instance_variable_set(:@fetch_api_key, nil) }
-
-  let(:requests) { [] }
-  let(:stub_env) { Hash["OLLAMA_API_KEY" => api_key] }
-  let(:api_key) { "test" }
-
-  let(:response_body) do
-    {
-      results: [
-        {
-          title: "Title one",
-          url: "https://example.com/1",
-          content: "Content one",
-        },
-      ],
-    }
-  end
+  let(:web_action) { "web_search" }
+  let(:response_body) { data[:search_response] }
 
   let(:query) { "mars mission" }
   let(:max_results) { 2 }
@@ -46,7 +20,7 @@ describe Cases::SearchWeb do
   it "returns typed results and forwards params to gateway" do
     results = run!
 
-    expect(results.size).to eq(1)
+    expect(results.size).to eq(2)
     first = results.first
     expect(first).to be_a(Entities::Result)
     expect(first.title).to eq("Title one")

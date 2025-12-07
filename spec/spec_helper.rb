@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "erb"
+require "yaml"
+
 require "webmock/rspec"
 
 if ENV["COVER"]
@@ -25,6 +28,9 @@ if ENV["COVER"]
 end
 
 require_relative "../config/application"
+
+# Load all shared contexts from support/contexts
+Dir[File.join(__dir__, "support", "contexts", "*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
   WebMock.disable_net_connect!

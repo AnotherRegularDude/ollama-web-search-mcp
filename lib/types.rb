@@ -7,4 +7,13 @@
 #
 module Types
   include Dry.Types
+
+  # @example Using string type
+  #   Types::String
+  #
+  # @example Using integer type with constraints
+  #   Types::Integer.constrained(included_in: 1..10)
+  #
+  # @example Using array of strings
+  #   Types::Array.of(Types::String)
 end

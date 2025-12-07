@@ -15,4 +15,12 @@ class MCPExt::TransportHandler < ServiceObject
   #   @return [Entities::Transport] the transport configuration
 
   param :transport, Types.Instance(Entities::Transport)
+
+  # @example Handle a STDIO transport
+  #   transport = Entities::Transport.new(type: :stdio, data: {})
+  #   result = MCPExt::TransportHandler.call(transport)
+  #
+  # @example Handle an HTTP transport
+  #   transport = Entities::Transport.new(type: :http, data: { port: 8080 })
+  #   result = MCPExt::TransportHandler.call(transport)
 end

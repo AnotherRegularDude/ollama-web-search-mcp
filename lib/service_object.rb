@@ -15,6 +15,10 @@ class ServiceObject < Resol::Service
     #
     # @return [Object] the result of the parent call method
     # @raise [ArgumentError] if validation constraints are violated
+    #
+    # @example Calling a service with invalid parameters
+    #   # This would raise ArgumentError if max_results is outside 1..10
+    #   Cases::SearchWeb.call("query", max_results: 15)
     def call(...)
       super
     rescue Dry::Types::ConstraintError => e

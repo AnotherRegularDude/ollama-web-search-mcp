@@ -11,7 +11,7 @@ class Cases::SearchWeb < ServiceObject
   #   @return [String] the search query string
 
   # @!attribute [r] max_results
-  #   @return [Integer] maximum number of results to return (optional)
+  #   @return [Integer] maximum number of results to return (optional, 1-10)
 
   param :query, Types::String
   option :max_results, Types::Integer.constrained(included_in: 1..10), optional: true
@@ -24,7 +24,7 @@ class Cases::SearchWeb < ServiceObject
   # @example Basic usage
   #   result = Cases::SearchWeb.call("ruby programming")
   #   if result.success?
-  #     results = result.value
+  #     results = result.value!
   #     results.each do |item|
   #       puts "#{item.title}: #{item.url}"
   #     end
@@ -32,6 +32,10 @@ class Cases::SearchWeb < ServiceObject
   #
   # @example With maximum results limit
   #   result = Cases::SearchWeb.call("ruby programming", max_results: 3)
+  #   if result.success?
+  #     results = result.value!
+  #     puts "Found #{results.length} results"
+  #   end
   def call
     self.results = search!
     map_results!
@@ -50,6 +54,10 @@ class Cases::SearchWeb < ServiceObject
   #
   # @return [Array<Hash>] raw search results from the API
   # @raise [Adapters::OllamaGateway::HTTPError] if the HTTP request fails
+  #
+  # @example Search for programming languages
+  #   search!
+  #   # => [{"title"=>"Ruby Programming", "url"=>"https://ruby-lang.org", "content"=>"..."}, ...]
   def search!
     Adapters::OllamaGateway.process_web_search!(
       query: query,
@@ -62,6 +70,11 @@ class Cases::SearchWeb < ServiceObject
   # Maps raw API results to typed entities
   #
   # @return [void]
+  #
+  # @example Map raw results to entities
+  #   results = [{"title"=>"Example", "url"=>"https://example.com", "content"=>"..."}]
+  #   map_results!
+  #   # results is now [Entities::Result] objects
   def map_results!
     results.map! do |result|
       Entities::Result.new(

@@ -1,76 +1,113 @@
 # frozen_string_literal: true
 
 describe Adapters::OllamaGateway do
+  include_context "ollama request context"
+
   def run!
     described_class.process_web_search!(query: query, max_results: max_results)
   end
 
-  def stub_web_search
-    stub_request(:post, "https://ollama.com/api/web_search").to_return do |request|
-      requests << request
-      {
-        status: response_status,
-        body: response_body.is_a?(String) ? response_body : response_body.to_json,
-        headers: { "Content-Type" => "application/json" },
-      }
-    end
+  def run_fetch!
+    described_class.process_web_fetch!(url: url)
   end
 
-  before { stub_const("Application::ENV", stub_env) }
-  before { stub_web_search }
-  after { Application.instance_variable_set(:@fetch_api_key, nil) }
-
-  let(:requests) { [] }
-  let(:stub_env) { Hash["OLLAMA_API_KEY" => api_key] }
-  let(:api_key) { "test key" }
+  let(:web_action) { "web_search" }
+  let(:response_body) { data[:search_response] }
 
   let(:query) { "web search query" }
   let(:max_results) { 3 }
+  let(:url) { "https://example.com" }
 
-  let(:response_status) { 200 }
-  let(:response_body) do
-    {
-      results: [
-        {
-          title: "Result title",
-          url: "https://example.com",
-          content: "Result content",
-        },
-      ],
-    }
-  end
-
-  it "sends HTTP request with payload and headers" do
-    results = run!
-
-    expect(requests.size).to eq(1)
-    expect(results.size).to eq(1)
-    expect(results.first).to eq(
-      { "title" => "Result title", "url" => "https://example.com", "content" => "Result content" },
-    )
-
-    request = requests.first
-    expect(request.body).to eq({ query: query, max_results: max_results }.to_json)
-    expect(request.headers["Authorization"]).to eq("Bearer #{api_key}")
-    expect(request.headers["Content-Type"]).to eq("application/json")
-  end
-
-  context "when response status is not 200" do
-    let(:response_status) { 500 }
-    let(:response_body) { "Internal Server Error" }
-
-    it "raises HTTPError" do
-      expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError, "Error: HTTP 500 - Internal Server Error")
+  describe ".process_web_search!" do
+    it "sends HTTP request with payload and headers" do
+      results = run!
 
       expect(requests.size).to eq(1)
+      expect(results.size).to eq(2)
+      expect(results.first).to eq(
+        { "title" => "Title one", "url" => "https://example.com/1", "content" => "Content one" },
+      )
+      expect(results.last).to eq(
+        { "title" => "Title two", "url" => "https://example.com/2", "content" => "Content two" },
+      )
+
+      request = requests.first
+      expect(request.body).to eq({ query: query, max_results: max_results }.to_json)
+      expect(request.headers["Authorization"]).to eq("Bearer #{api_key}")
+      expect(request.headers["Content-Type"]).to eq("application/json")
+    end
+
+    context "when response status is not 200" do
+      let(:response_status) { 500 }
+      let(:response_body) { "Internal Server Error" }
+
+      it "raises HTTPError" do
+        expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError, "Error: HTTP 500 - Internal Server Error")
+
+        expect(requests.size).to eq(1)
+      end
+    end
+
+    context "when connection times out" do
+      before { stub_request(:post, "https://ollama.com/api/web_search").to_timeout }
+
+      it "returns timeout error" do
+        expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError, "HTTP Timeout: execution expired")
+      end
     end
   end
 
-  context "when connection times out" do
-    before { stub_request(:post, "https://ollama.com/api/web_search").to_timeout }
+  describe ".process_web_fetch!" do
+    let(:web_action) { "web_fetch" }
+    let(:response_body) { data[:fetch_response] }
 
-    it "returns timeout error" do
-      expect { run! }.to raise_error(Adapters::OllamaGateway::HTTPError, "HTTP Timeout: execution expired")
+    it "sends HTTP request with payload and headers" do
+      result = run_fetch!
+
+      expect(requests.size).to eq(1)
+      expect(result).to eq(
+        {
+          "title" => "Example Page",
+          "content" => "This is the content of the page.",
+          "links" => ["https://example.com", "https://example.com/about"],
+        },
+      )
+
+      request = requests.first
+      expect(request.body).to eq({ url: url }.to_json)
+      expect(request.headers["Authorization"]).to eq("Bearer #{api_key}")
+      expect(request.headers["Content-Type"]).to eq("application/json")
+    end
+
+    context "when response status is not 200" do
+      let(:response_status) { 500 }
+      let(:response_body) { "Internal Server Error" }
+
+      it "raises HTTPError" do
+        error_message = "Error: HTTP 500 - Internal Server Error"
+        expect { run_fetch! }.to raise_error(Adapters::OllamaGateway::HTTPError, error_message)
+
+        expect(requests.size).to eq(1)
+      end
+    end
+
+    context "when response status is not 200" do
+      let(:response_status) { 404 }
+      let(:response_body) { "Not Found Error" }
+
+      it "raises HTTPError" do
+        expect { run_fetch! }.to raise_error(Adapters::OllamaGateway::HTTPError, "Error: HTTP 404 - Not Found Error")
+
+        expect(requests.size).to eq(1)
+      end
+    end
+
+    context "when connection times out" do
+      before { stub_request(:post, "https://ollama.com/api/web_fetch").to_timeout }
+
+      it "returns timeout error" do
+        expect { run_fetch! }.to raise_error(Adapters::OllamaGateway::HTTPError, "HTTP Timeout: execution expired")
+      end
     end
   end
 end

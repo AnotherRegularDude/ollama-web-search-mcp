@@ -6,4 +6,11 @@
 # entity objects in the application, ensuring type safety and immutability.
 #
 class AbstractStruct < Dry::Struct
+  # @example Creating a custom entity
+  #   class Person < AbstractStruct
+  #     attribute :name, Types::String
+  #     attribute :age, Types::Integer
+  #   end
+  #
+  #   person = Person.new(name: "John", age: 30)
 end
