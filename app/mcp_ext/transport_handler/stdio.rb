@@ -28,7 +28,7 @@ class MCPExt::TransportHandler::Stdio < MCPExt::TransportHandler
   #     # start_proc.call to start the transport
   #   end
   def call
-    mcp_transport = self.class.build_stdio_transport(transport.server)
+    mcp_transport = self.class.build_stdio_transport(context.server)
     success!(proc { mcp_transport.open })
   end
 end

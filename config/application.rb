@@ -25,8 +25,6 @@ loader.inflector.inflect(
   "mcp_ext" => "MCPExt",
 )
 
-loader.setup
-
 # Main application module providing configuration methods.
 #
 module Application

@@ -59,6 +59,6 @@ class MCPExt::TransportHandler::Http < MCPExt::TransportHandler
   # @api private
   def handle_request(env)
     request = Rack::Request.new(env)
-    transport.server.handle_json(request.body.read)
+    server.handle_json(request.body.read)
   end
 end

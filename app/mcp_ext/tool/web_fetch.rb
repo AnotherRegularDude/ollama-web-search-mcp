@@ -50,41 +50,10 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
     #     source_type: :fetch
     #   )
     #   output = format_result(result)
-    #   # => "Web page content from: Example Domain\nURL: https://example.com/more\n\n"
-    #       # => "This domain is for use in illustrative examples..."
+    #   # => "# Example Domain\n\n## Content\nThis domain is for use in illustrative examples...\n\n## Links\nURL: https://example.com\nOn Page:\n- https://example.com/more"
     def format_result(result)
-      build_result_output(result)
-    end
-
-    # Builds the complete output string for the result using StringIO
-    #
-    # Generates a markdown-formatted string with:
-    # - Header: "# {title}"
-    # - Content section (if present): "## Content\n{content}"
-    # - Links section: "## Links\nURL: {url}\nOn Page:\n- {link1}\n- {link2}" (if links present)
-    #
-    # @param result [Entities::RemoteContent] the fetch result
-    # @return [String] formatted markdown output string
-    # @api private
-    def build_result_output(result)
-      StringIO.open do |buffer|
-        buffer.puts "# #{result.title}"
-
-        unless result.content.empty?
-          buffer.puts "## Content"
-          buffer.puts result.content
-        end
-
-        buffer.puts "## Links"
-        buffer.puts "URL: #{result.url}"
-
-        if result.related_content.any?
-          buffer.puts "On Page:"
-          result.related_content.each { |pointer| buffer.puts "- #{pointer.link}" }
-        end
-
-        buffer.string.chomp
-      end
+      formatter = Formatters::WebContentFormatter.new
+      formatter.format(result)
     end
   end
 end

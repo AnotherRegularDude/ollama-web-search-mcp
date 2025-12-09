@@ -22,19 +22,4 @@ class Entities::Transport < AbstractStruct
 
   attribute :type, Types::Symbol.enum(:stdio, :http)
   attribute :data, DATA_SCHEMAS.inject(&:|)
-
-  attribute? :server, Types.Instance(MCP::Server)
-
-  # Creates a new transport instance with the specified server
-  #
-  # @param server [MCP::Server] the MCP server instance
-  # @return [Entities::Transport] a new transport instance with the server
-  #
-  # @example Create a transport with a server
-  #   transport = Entities::Transport.new(type: :http, data: { port: 8080 })
-  #   server = MCP::Server.new(name: "test", tools: [])
-  #   transport_with_server = transport.with_server(server)
-  def with_server(server)
-    self.class.new(type:, data:, server:)
-  end
 end

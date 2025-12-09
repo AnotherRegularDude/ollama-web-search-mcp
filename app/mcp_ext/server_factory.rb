@@ -68,6 +68,8 @@ class MCPExt::ServerFactory
       tools: @attributes.tools,
     )
 
-    MCPExt::TransportHandler.call!(@attributes.transport.with_server(server))
+    server_context = ServerContext.new(server: server, transport: @attributes.transport)
+
+    MCPExt::TransportHandler.call!(server_context)
   end
 end
