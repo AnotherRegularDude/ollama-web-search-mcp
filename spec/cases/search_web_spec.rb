@@ -22,7 +22,7 @@ describe Cases::SearchWeb do
 
     expect(results.size).to eq(2)
     first = results.first
-    expect(first).to be_a(Entities::Result)
+    expect(first).to be_a(Entities::RemoteContent)
     expect(first.title).to eq("Title one")
     expect(first.url).to eq("https://example.com/1")
     expect(first.content).to eq("Content one")

@@ -37,15 +37,17 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
 
     # Formats the fetch result for presentation to the AI assistant
     #
-    # @param result [Entities::WebFetchResult] the fetch result
+    # @param result [Entities::RemoteContent] the fetch result
     # @return [String] formatted result string
     # @api private
     #
     # @example Format a fetch result
-    #   result = Entities::WebFetchResult.new(
+    #   result = Entities::RemoteContent.new(
     #     title: "Example Domain",
+    #     url: "https://example.com",
     #     content: "This domain is for use in illustrative examples...",
-    #     links: ["https://example.com/more"]
+    #     related_content: [Value::ContentPointer.new(link: "https://example.com/more")],
+    #     source_type: :fetch
     #   )
     #   output = format_result(result)
     #   # => "Web page content from: Example Domain\nURL: https://example.com/more\n\n"
@@ -61,7 +63,7 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
     # - Content section (if present): "## Content\n{content}"
     # - Links section: "## Links\nURL: {url}\nOn Page:\n- {link1}\n- {link2}" (if links present)
     #
-    # @param result [Entities::WebFetchResult] the fetch result
+    # @param result [Entities::RemoteContent] the fetch result
     # @return [String] formatted markdown output string
     # @api private
     def build_result_output(result)
@@ -76,9 +78,9 @@ class MCPExt::Tool::WebFetch < MCPExt::Tool::Base
         buffer.puts "## Links"
         buffer.puts "URL: #{result.url}"
 
-        if result.links.any?
+        if result.related_content.any?
           buffer.puts "On Page:"
-          result.links.each { |link| buffer.puts "- #{link}" }
+          result.related_content.each { |pointer| buffer.puts "- #{pointer.link}" }
         end
 
         buffer.string.chomp

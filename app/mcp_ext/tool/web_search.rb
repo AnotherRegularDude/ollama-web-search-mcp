@@ -44,15 +44,17 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
 
     # Formats the search results for presentation to the AI assistant
     #
-    # @param results [Array<Entities::Result>] the search results
+    # @param results [Array<Entities::RemoteContent>] the search results
     # @param query [String] the original search query
     # @return [String] formatted results string
     # @api private
     #
     # @example Format search results
     #   results = [
-    #     Entities::Result.new(title: "Ruby", url: "https://ruby-lang.org", content: "Ruby is a programming language"),
-    #     Entities::Result.new(title: "Rails", url: "https://rubyonrails.org", content: "Rails is a web framework")
+    #     Entities::RemoteContent.new(
+    #       title: "Ruby", url: "https://ruby-lang.org", content: "programming language", source_type: :search,
+    #     ),
+    #     Entities::RemoteContent.new(title: "Rails", url: "https://rubyonrails.org", content: "Rails is a web framework", source_type: :search)
     #   ]
     #   output = format_results(results, "ruby programming")
     #   # => "Search results for: ruby programming\n\n1. Ruby\n  URL: https://ruby-lang.org\n  Content: Ruby is a..."
@@ -66,7 +68,7 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
 
     # Builds the complete output string for all results
     #
-    # @param results [Array<Entities::Result>] the search results
+    # @param results [Array<Entities::RemoteContent>] the search results
     # @param query [String] the original search query
     # @return [String] formatted output string
     # @api private
@@ -83,7 +85,7 @@ class MCPExt::Tool::WebSearch < MCPExt::Tool::Base
     # Formats a single search result
     #
     # @param number [Integer] the result number (1-based)
-    # @param result [Entities::Result] the search result to format
+    # @param result [Entities::RemoteContent] the search result to format
     # @return [String] formatted result string
     # @api private
     def format_result(number, result)

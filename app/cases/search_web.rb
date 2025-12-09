@@ -18,7 +18,7 @@ class Cases::SearchWeb < ServiceObject
 
   # Executes the web search and returns the results
   #
-  # @return [Resol::Service::Value] a service result containing an array of {Entities::Result} objects
+  # @return [Resol::Service::Value] a service result containing an array of {Entities::RemoteContent} objects
   # @raise [ArgumentError] if the parameters are invalid
   # @raise [self::Failure] if using `call!` and the service fails
   #
@@ -81,13 +81,14 @@ class Cases::SearchWeb < ServiceObject
   # @example Map raw results to entities
   #   results = [{"title"=>"Example", "url"=>"https://example.com", "content"=>"..."}]
   #   map_results!
-  #   # results is now [Entities::Result] objects
+  #   # results is now [Entities::RemoteContent] objects
   def map_results!
     results.map! do |result|
-      Entities::Result.new(
+      Entities::RemoteContent.new(
         title: result["title"],
         url: result["url"],
         content: result["content"],
+        source_type: :search,
       )
     end
   end

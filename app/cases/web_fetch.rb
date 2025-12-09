@@ -14,7 +14,7 @@ class Cases::WebFetch < ServiceObject
 
   # Executes the web fetch and returns the results
   #
-  # @return [Resol::Service::Value] a service result containing a {Entities::WebFetchResult} object
+  # @return [Resol::Service::Value] a service result containing a {Entities::RemoteContent} object
   # @raise [ArgumentError] if the parameters are invalid
   # @raise [self::Failure] if using `call!` and the service fails
   #
@@ -75,14 +75,15 @@ class Cases::WebFetch < ServiceObject
   # @example Map raw result to entity
   #   result = {"title"=>"Example", "content"=>"...", "links"=>["https://example.com/more"]}
   #   map_result!
-  #   # result is now an Entities::WebFetchResult object
+  #   # result is now an Entities::RemoteContent object
   # @api private
   def map_result!
-    self.result = Entities::WebFetchResult.new(
+    self.result = Entities::RemoteContent.new(
       title: result["title"],
       url: url,
       content: result["content"],
-      links: result["links"],
+      related_content: result["links"].map { |link| Value::ContentPointer.new(link: link) },
+      source_type: :fetch,
     )
   end
 end

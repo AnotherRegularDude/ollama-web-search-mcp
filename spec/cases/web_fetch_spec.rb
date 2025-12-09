@@ -19,11 +19,11 @@ describe Cases::WebFetch do
   it "returns typed result and forwards params to gateway" do
     result = run!
 
-    expect(result).to be_a(Entities::WebFetchResult)
+    expect(result).to be_a(Entities::RemoteContent)
     expect(result.title).to eq("Example Page")
     expect(result.url).to eq("https://example.com")
     expect(result.content).to eq("This is the content of the page.")
-    expect(result.links).to eq(["https://example.com", "https://example.com/about"])
+    expect(result.related_content.map(&:link)).to eq(["https://example.com", "https://example.com/about"])
 
     expect(requests.size).to eq(1)
     expect(requests.first.body).to eq({ url: "https://example.com" }.to_json)
