@@ -8,27 +8,18 @@
 class MCPExt::TransportHandler::Stdio < MCPExt::TransportHandler
   # Builds a STDIO transport for the MCP server
   #
-  # @param server [MCP::Server] the MCP server instance
+  # @param context [MCPExt::ServerContext] the server context
   # @return [MCP::Server::Transports::StdioTransport] the STDIO transport
   # @api private
-  def self.build_stdio_transport(server)
-    MCP::Server::Transports::StdioTransport.new(server)
+  def self.build_stdio_transport(context)
+    MCP::Server::Transports::StdioTransport.new(context.server)
   end
 
   # Configures and starts the STDIO transport
   #
   # @return [Resol::Service::Value] a service result containing a proc to start the transport
-  #
-  # @example Configure STDIO transport
-  #   transport = Entities::Transport.new(type: :stdio, data: {})
-  #   handler = MCPExt::TransportHandler::Stdio.new(transport)
-  #   result = handler.call
-  #   if result.success?
-  #     start_proc = result.value!
-  #     # start_proc.call to start the transport
-  #   end
   def call
-    mcp_transport = self.class.build_stdio_transport(context.server)
+    mcp_transport = self.class.build_stdio_transport(context)
     success!(proc { mcp_transport.open })
   end
 end

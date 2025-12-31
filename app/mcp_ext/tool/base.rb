@@ -26,7 +26,7 @@ class MCPExt::Tool::Base < MCP::Tool
     # @return [MCP::Tool::Response] the formatted response
     # @api private
     def render(text)
-      MCP::Tool::Response.new([type: "text", text: text])
+      MCP::Tool::Response.new([type: "text", text:])
     end
   end
 end

@@ -18,9 +18,10 @@ ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
 require_relative "../config/application"
 
 port = Integer(ARGV.first, exception: false)
+mcp_version = ENV.fetch("MCP_VERSION", nil)
 
 MCPExt::ServerFactory
   .with_defaults
-  .with_transport(Entities::Transport.new(type: :http, data: { port: }.compact))
+  .with_transport(Entities::Transport.new(type: :http, data: { port:, mcp_version: }.compact))
   .build
   .call

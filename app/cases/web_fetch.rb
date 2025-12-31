@@ -63,7 +63,7 @@ class Cases::WebFetch < ServiceObject
   #   # => {"title"=>"Example Domain", "content"=>"...", "links"=>["https://example.com/more"]}
   # @api private
   def fetch!
-    Adapters::OllamaGateway.process_web_fetch!(url: url)
+    Adapters::OllamaGateway.process_web_fetch!(url:)
   rescue Adapters::OllamaGateway::HTTPError => e
     fail!(:request_failed, { message: e.message })
   end
@@ -80,9 +80,9 @@ class Cases::WebFetch < ServiceObject
   def map_result!
     self.result = Entities::RemoteContent.new(
       title: result["title"],
-      url: url,
+      url:,
       content: result["content"],
-      related_content: result["links"].map { |link| Value::ContentPointer.new(link: link) },
+      related_content: result["related_content"].map { |link_data| Value::ContentPointer.new(link: link_data["url"]) },
       source_type: :fetch,
     )
   end

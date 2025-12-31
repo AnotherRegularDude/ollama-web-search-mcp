@@ -5,11 +5,10 @@
 # and associated configuration data.
 #
 class Entities::Transport < AbstractStruct
-  # Schema definitions for transport data
-  # @return [Array<Dry::Types::Schema>]
-  DATA_SCHEMAS = [
-    Types::Hash.schema(port: Types::Integer.default(Application.default_http_server_port)),
-  ].freeze
+  DATA_SCHEMA = Types::Hash.schema(
+    mcp_version: Types::String.default(Application.default_mcp_protocol_version),
+    port: Types::Integer.default(Application.default_http_server_port),
+  ).with_key_transform(&:to_sym)
 
   # @!attribute [r] type
   #   @return [Symbol] the transport type (:stdio or :http)
@@ -21,5 +20,5 @@ class Entities::Transport < AbstractStruct
   #   @return [MCP::Server] the MCP server instance (optional)
 
   attribute :type, Types::Symbol.enum(:stdio, :http)
-  attribute :data, DATA_SCHEMAS.inject(&:|)
+  attribute :data, DATA_SCHEMA
 end

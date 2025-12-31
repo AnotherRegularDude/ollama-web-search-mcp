@@ -19,6 +19,7 @@ gem "resol", git: "https://github.com/umbrellio/resol", branch: "feature/add-dry
 group :development, :test do
   gem "pry"
   gem "rspec"
+  gem "rspec-json_matcher", require: false
   gem "rubocop", require: false
   gem "simplecov", require: false
   gem "simplecov-lcov", require: false

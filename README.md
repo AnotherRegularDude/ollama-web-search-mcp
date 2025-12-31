@@ -153,6 +153,15 @@ The server requires an Ollama API key to function. Set the `OLLAMA_API_KEY` envi
 export OLLAMA_API_KEY="your-api-key-here"
 ```
 
+You can also configure the MCP protocol version using the `MCP_PROTOCOL_VERSION` environment variable:
+
+```bash
+export MCP_PROTOCOL_VERSION="2025-03-26"
+```
+
+Supported MCP protocol versions: `2025-06-18`, `2025-03-26`, `2024-11-05`. If not specified, the default version `2025-06-18` will be used.
+
+
 ## API Reference
 
 ### Web Search Tool

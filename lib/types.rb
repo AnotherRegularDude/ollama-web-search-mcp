@@ -8,6 +8,9 @@
 module Types
   include Dry.Types
 
+  EMPTY_HASH = {}.freeze
+  EMPTY_HASH_DEFAULT = proc { EMPTY_HASH }
+
   # @example Using string type
   #   Types::String
   #

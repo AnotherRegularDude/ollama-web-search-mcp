@@ -20,15 +20,6 @@ class MCPExt::TransportHandler::Http < MCPExt::TransportHandler
   # Configures and starts the HTTP transport
   #
   # @return [Resol::Service::Value] a service result containing a proc to start the transport
-  #
-  # @example Configure HTTP transport
-  #   transport = Entities::Transport.new(type: :http, data: { port: 8080 })
-  #   handler = MCPExt::TransportHandler::Http.new(transport)
-  #   result = handler.call
-  #   if result.success?
-  #     start_proc = result.value!
-  #     # start_proc.call to start the transport
-  #   end
   def call
     server_config = build_puma_config
     launcher = self.class.puma_launcher_from(server_config)
@@ -43,12 +34,14 @@ class MCPExt::TransportHandler::Http < MCPExt::TransportHandler
   # @return [Puma::Configuration] the Puma configuration
   # @api private
   def build_puma_config
+    port = transport.data[:port] || 8080
+
     Puma::Configuration.new do |config|
       config.threads 1, 5
       config.app do |env|
         [200, { "Content-Type" => "application/json" }, [handle_request(env)]]
       end
-      config.port(transport.data[:port])
+      config.port(port)
     end
   end
 

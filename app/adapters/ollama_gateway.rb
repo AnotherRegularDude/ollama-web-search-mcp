@@ -50,7 +50,7 @@ module Adapters::OllamaGateway
   #   )
   def process_web_search!(query:, max_results:)
     response = request!(SEARCH_URL.path, build_search_payload(query, max_results))
-    response.fetch("results", [])
+    response.fetch("results", []).first(max_results)
   end
 
   # Processes a web fetch request through the Ollama API
@@ -77,10 +77,7 @@ module Adapters::OllamaGateway
   # @return [Hash] the web search request payload
   # @api private
   def build_search_payload(query, max_results)
-    {
-      query: query,
-      max_results: max_results,
-    }
+    { query:, max_results: }
   end
 
   # Builds the payload for the fetch API request
@@ -89,9 +86,7 @@ module Adapters::OllamaGateway
   # @return [Hash] the request payload
   # @api private
   def build_fetch_payload(url)
-    {
-      url: url,
-    }
+    { url: }
   end
 
   # Makes a POST request to the API and processes the response

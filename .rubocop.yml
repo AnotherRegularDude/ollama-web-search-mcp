@@ -24,9 +24,9 @@ Style/StringLiteralsInInterpolation:
 # Layout and formatting
 Layout/LineLength:
   Max: 120
-  # Allow long lines for URLs, heredocs, and comments
-  AllowURI: true
-  IgnoreCopDirectives: true
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
 
 # Method and class length
 Metrics/MethodLength:
@@ -43,9 +43,9 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Max: 30
   Exclude:
-    - '**/*.gemspec'
-    - 'spec/**/*'
-    - 'test/**/*'
+    - "**/*.gemspec"
+    - "spec/**/*"
+    - "test/**/*"
 
 # Style preferences
 Style/Documentation:
@@ -68,7 +68,7 @@ Style/TrailingCommaInHashLiteral:
 Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19_no_mixed_keys
-  EnforcedShorthandSyntax: either
+  EnforcedShorthandSyntax: always
 
 Style/MethodDefParentheses:
   Enabled: true
@@ -77,6 +77,14 @@ Style/MethodDefParentheses:
 Style/EmptyMethod:
   Enabled: true
   EnforcedStyle: expanded
+
+# We want to rescue all standard errors.
+Style/RescueStandardError:
+  Enabled: false
+
+Style/EmptyLiteral:
+  Exclude:
+    - "spec/**/*"
 
 # Security cops
 Security/Eval:

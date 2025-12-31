@@ -67,7 +67,7 @@ class Cases::SearchWeb < ServiceObject
   #   # => [{"title"=>"Ruby Programming", "url"=>"https://ruby-lang.org", "content"=>"..."}, ...]
   def search!
     Adapters::OllamaGateway.process_web_search!(
-      query: query,
+      query:,
       max_results: max_results || Application.max_results_by_default,
     )
   rescue Adapters::OllamaGateway::HTTPError => e

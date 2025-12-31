@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class ServerContext < AbstractStruct
+class MCPExt::ServerContext < AbstractStruct
   attribute :server, Types.Instance(MCP::Server)
-  attribute :transport, Types.Instance(MCPExt::TransportHandler)
+  attribute :transport, Types.Instance(Entities::Transport)
 
   def type = transport.type
 end
