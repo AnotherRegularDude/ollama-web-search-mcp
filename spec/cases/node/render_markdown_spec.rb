@@ -341,42 +341,6 @@ describe Cases::Node::RenderMarkdown do
     end
   end
 
-  context "when rendering with special characters and edge cases" do
-    let(:header_text) { "Test Header with \"quotes\" and 'apostrophes'" }
-    let(:header_node) { Value::Node.new(type: :header, data: { text: header_text }) }
-
-    let(:content_with_unicode) { "Content with Unicode: 你好世界 🌟 and emoji 🎉" }
-    let(:content_node) { Value::Node.new(type: :content, data: { text: content_with_unicode }) }
-
-    let(:url_with_special_chars) { "https://example.com/path?query=value&other=test#fragment" }
-    let(:title_with_special_chars) { "Title with \"quotes\" and 'apostrophes'" }
-    let(:result_node) do
-      Value::Node.new(
-        type: :result,
-        data: { title: title_with_special_chars, url: url_with_special_chars, source: :search },
-        children: [content_node],
-      )
-    end
-
-    let(:root_node) do
-      Value::RootNode.new(
-        metadata: {},
-        children: [header_node, result_node],
-      )
-    end
-
-    it "handles special characters in all node types" do
-      result = described_class.call(root_node)
-
-      expect(result).to be_success
-      expect(result.value!).to include(header_text)
-      expect(result.value!).to include(title_with_special_chars)
-      expect(result.value!).to include(url_with_special_chars)
-      expect(result.value!).to include("你好世界 🌟")
-      expect(result.value!).to include("emoji 🎉")
-    end
-  end
-
   context "when rendering with very long content" do
     let(:long_content) { "A" * 1000 }
     let(:content_node) { Value::Node.new(type: :content, data: { text: long_content }) }

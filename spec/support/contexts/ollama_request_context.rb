@@ -43,7 +43,6 @@ end
 
 __END__
 
-# Standardized response format for web search operations
 search_response: |
   {
     "results": [
@@ -72,7 +71,6 @@ search_response: |
     ]
   }
 
-# Standardized response format for web fetch operations
 fetch_response: |
   {
     "title": "Example Web Page",

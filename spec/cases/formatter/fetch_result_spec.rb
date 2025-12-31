@@ -21,25 +21,21 @@ describe Cases::Formatter::FetchResult do
     )
   end
 
-  context "with content and links" do
-    it "formats web fetch results with metadata, content, and links in markdown format by default" do
-      expected_output = <<~OUTPUT.chomp
-        **Source:** fetch
-        **URL:** https://example.com
-        **Content:**
-        ---
-        Example content for testing
-        ---
-        **Links:**
-        - [https://example.com/related1](https://example.com/related1)
-        - [https://example.com/related2](https://example.com/related2)
-      OUTPUT
-
-      expect(result).to eq(expected_output)
-    end
-
-    # JSON theme has been removed - only Markdown is supported now
+  let(:expected_output) do
+    <<~OUTPUT.chomp
+      **Source:** fetch
+      **URL:** https://example.com
+      **Content:**
+      ---
+      Example content for testing
+      ---
+      **Links:**
+      - [https://example.com/related1](https://example.com/related1)
+      - [https://example.com/related2](https://example.com/related2)
+    OUTPUT
   end
+
+  specify { expect(result).to eq(expected_output) }
 
   context "with empty content" do
     let(:result_content) do
@@ -52,19 +48,18 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "returns a no content message in markdown format by default" do
-      expected_output = <<~OUTPUT.chomp
+    let(:expected_output) do
+      <<~OUTPUT.chomp
         **Source:** fetch
         **URL:** https://example.com
         No content found for URL: #{url}
       OUTPUT
-      expect(result).to eq(expected_output)
     end
 
-    # JSON theme has been removed - only Markdown is supported now
+    specify { expect(result).to eq(expected_output) }
   end
 
-  context "with content but no links" do
+  context "without links" do
     let(:result_content) do
       Entities::RemoteContent.new(
         title: "Content Only Page",
@@ -75,8 +70,8 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "formats web fetch results with metadata and content only in markdown format" do
-      expected_output = <<~OUTPUT.chomp
+    let(:expected_output) do
+      <<~OUTPUT.chomp
         **Source:** fetch
         **URL:** https://example.com
         **Content:**
@@ -84,14 +79,12 @@ describe Cases::Formatter::FetchResult do
         Example content for testing
         ---
       OUTPUT
-
-      expect(result).to eq(expected_output)
     end
 
-    # JSON theme has been removed - only Markdown is supported now
+    specify { expect(result).to eq(expected_output) }
   end
 
-  context "with empty content but valid links" do
+  context "with only links" do
     let(:result_content) do
       Entities::RemoteContent.new(
         title: "Links Only Page",
@@ -102,19 +95,17 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "formats web fetch results with metadata and links when content is empty but links are present" do
-      expected_output = <<~OUTPUT.chomp
+    let(:expected_output) do
+      <<~OUTPUT.chomp
         **Source:** fetch
         **URL:** https://example.com
         **Links:**
         - [https://example.com/related1](https://example.com/related1)
         - [https://example.com/related2](https://example.com/related2)
       OUTPUT
-
-      expect(result).to eq(expected_output)
     end
 
-    # JSON theme has been removed - only Markdown is supported now
+    specify { expect(result).to eq(expected_output) }
   end
 
   context "with URL containing special characters" do
@@ -128,8 +119,8 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "handles URLs with query parameters and fragments correctly in markdown format" do
-      expected_output = <<~OUTPUT.chomp
+    let(:expected_output) do
+      <<~OUTPUT.chomp
         **Source:** fetch
         **URL:** https://example.com/path?query=value&other=test#fragment
         **Content:**
@@ -137,11 +128,9 @@ describe Cases::Formatter::FetchResult do
         Content with special URL
         ---
       OUTPUT
-
-      expect(result).to eq(expected_output)
     end
 
-    # JSON theme has been removed - only Markdown is supported now
+    specify { expect(result).to eq(expected_output) }
   end
 
   context "with very long content and URLs" do
@@ -157,11 +146,18 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "handles very long content and URLs without truncation" do
-      expect(result.length).to be > 500
-      expect(result).to include(long_content)
-      expect(result).to include(long_url)
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** #{long_url}
+        **Content:**
+        ---
+        #{long_content}
+        ---
+      OUTPUT
     end
+
+    specify { expect(result).to eq(expected_output) }
   end
 
   context "with unicode content and URLs" do
@@ -177,10 +173,18 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "handles unicode content and URLs correctly" do
-      expect(result).to include("你好世界 🌟🎉")
-      expect(result).to include("https://example.com/你好")
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** https://example.com/你好
+        **Content:**
+        ---
+        Unicode content: 你好世界 🌟🎉
+        ---
+      OUTPUT
     end
+
+    specify { expect(result).to eq(expected_output) }
   end
 
   context "with multiple related links to same URL" do
@@ -199,10 +203,22 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "handles duplicate URLs in related content" do
-      expect(result).to include("https://example.com/same")
-      expect(result).to include("https://example.com/different")
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** https://example.com
+        **Content:**
+        ---
+        Content with duplicate links
+        ---
+        **Links:**
+        - [https://example.com/same](https://example.com/same)
+        - [https://example.com/same](https://example.com/same)
+        - [https://example.com/different](https://example.com/different)
+      OUTPUT
     end
+
+    specify { expect(result).to eq(expected_output) }
   end
 
   context "with options {max_chars: nil, truncate: true}" do
@@ -221,9 +237,17 @@ describe Cases::Formatter::FetchResult do
       )
     end
 
-    it "uses default max_chars value when nil is passed" do
-      expect(result).to include(long_content)
-      expect(result.length).to be > 500
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** https://example.com
+        **Content:**
+        ---
+        #{long_content}
+        ---
+      OUTPUT
     end
+
+    specify { expect(result).to eq(expected_output) }
   end
 end
