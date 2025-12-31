@@ -18,16 +18,23 @@ class Cases::SearchWeb < ServiceObject
 
   # Executes the web search and returns the results
   #
-  # @return [Resol::Service::Value] a service result containing an array of {Entities::Result} objects
+  # @return [Resol::Service::Value] a service result containing an array of {Entities::RemoteContent} objects
   # @raise [ArgumentError] if the parameters are invalid
+  # @raise [self::Failure] if using `call!` and the service fails
   #
-  # @example Basic usage
+  # @example Basic usage with result monad
   #   result = Cases::SearchWeb.call("ruby programming")
   #   if result.success?
   #     results = result.value!
   #     results.each do |item|
   #       puts "#{item.title}: #{item.url}"
   #     end
+  #   end
+  #
+  # @example Using call! to automatically unwrap the result
+  #   results = Cases::SearchWeb.call!("ruby programming")
+  #   results.each do |item|
+  #     puts "#{item.title}: #{item.url}"
   #   end
   #
   # @example With maximum results limit
@@ -60,7 +67,7 @@ class Cases::SearchWeb < ServiceObject
   #   # => [{"title"=>"Ruby Programming", "url"=>"https://ruby-lang.org", "content"=>"..."}, ...]
   def search!
     Adapters::OllamaGateway.process_web_search!(
-      query: query,
+      query:,
       max_results: max_results || Application.max_results_by_default,
     )
   rescue Adapters::OllamaGateway::HTTPError => e
@@ -74,13 +81,14 @@ class Cases::SearchWeb < ServiceObject
   # @example Map raw results to entities
   #   results = [{"title"=>"Example", "url"=>"https://example.com", "content"=>"..."}]
   #   map_results!
-  #   # results is now [Entities::Result] objects
+  #   # results is now [Entities::RemoteContent] objects
   def map_results!
     results.map! do |result|
-      Entities::Result.new(
+      Entities::RemoteContent.new(
         title: result["title"],
         url: result["url"],
         content: result["content"],
+        source_type: :search,
       )
     end
   end

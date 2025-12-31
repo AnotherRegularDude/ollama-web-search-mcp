@@ -8,19 +8,21 @@
 class MCPExt::TransportHandler < ServiceObject
   # Builds the appropriate transport handler based on transport type
   #
-  # @param transport [Entities::Transport] the transport configuration
-  builds { |transport| const_get(transport.type.capitalize) }
+  # @param context [MCPExt::ServerContext] the server context containing transport configuration
+  builds { |context| const_get(context.type.capitalize) }
 
-  # @!attribute [r] transport
-  #   @return [Entities::Transport] the transport configuration
+  # @!attribute [r] context
+  #   @return [MCPExt::ServerContext] the server context containing transport and server
 
-  param :transport, Types.Instance(Entities::Transport)
+  param :context, Types.Instance(MCPExt::ServerContext)
 
-  # @example Handle a STDIO transport
-  #   transport = Entities::Transport.new(type: :stdio, data: {})
-  #   result = MCPExt::TransportHandler.call(transport)
-  #
-  # @example Handle an HTTP transport
-  #   transport = Entities::Transport.new(type: :http, data: { port: 8080 })
-  #   result = MCPExt::TransportHandler.call(transport)
+  private
+
+  def transport
+    context.transport
+  end
+
+  def server
+    context.server
+  end
 end

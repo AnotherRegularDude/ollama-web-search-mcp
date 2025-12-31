@@ -19,23 +19,19 @@ describe Cases::WebFetch do
   it "returns typed result and forwards params to gateway" do
     result = run!
 
-    expect(result).to be_a(Entities::WebFetchResult)
-    expect(result.title).to eq("Example Page")
+    expect(result).to be_a(Entities::RemoteContent)
+    expect(result.title).to eq("Example Web Page")
     expect(result.url).to eq("https://example.com")
-    expect(result.content).to eq("This is the content of the page.")
-    expect(result.links).to eq(["https://example.com", "https://example.com/about"])
+    expect(result.content).to eq("This is the main content of the fetched web page.")
+    expect(result.related_content.map(&:link)).to eq(["https://example.com", "https://example.com/about"])
 
     expect(requests.size).to eq(1)
-    expect(requests.first.body).to eq({ url: "https://example.com" }.to_json)
+    expect(requests.first.body).to be_json_as(url: "https://example.com")
   end
 
   context "when gateway responds with error" do
-    before do
-      stub_request(:post, "https://ollama.com/api/web_fetch").to_return do |request|
-        requests << request
-        { status: 500, body: "Failure" }
-      end
-    end
+    let(:response_status) { 500 }
+    let(:response_body) { "Failure" }
 
     it "propagates HTTPError" do
       result = run

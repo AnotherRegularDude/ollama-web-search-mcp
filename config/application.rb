@@ -23,6 +23,7 @@ loader.push_dir(root_path.join("lib"))
 
 loader.inflector.inflect(
   "mcp_ext" => "MCPExt",
+  "json" => "JSON",
 )
 
 loader.setup
@@ -61,4 +62,13 @@ module Application
   #   port = Application.default_http_server_port
   #   # => 8080
   def default_http_server_port = 8080
+
+  # Returns the default MCP protocol version
+  #
+  # @return [String] the default MCP protocol version
+  #
+  # @example Get the default MCP protocol version
+  #   protocol_version = Application.default_mcp_protocol_version
+  #   # => "2025-06-18"
+  def default_mcp_protocol_version = MCP::Configuration::DEFAULT_PROTOCOL_VERSION
 end

@@ -4,6 +4,7 @@ require "erb"
 require "yaml"
 
 require "webmock/rspec"
+require "rspec/json_matcher"
 
 if ENV["COVER"]
   require "simplecov"
@@ -79,4 +80,6 @@ RSpec.configure do |config|
     # Verify partial doubles
     mocks.verify_partial_doubles = true
   end
+
+  config.include RSpec::JsonMatcher
 end

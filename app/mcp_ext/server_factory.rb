@@ -3,7 +3,8 @@
 # Factory class for creating MCP servers with predefined configurations.
 #
 # This class provides a fluent interface for building MCP servers with
-# specific tools and transport configurations.
+# specific tools and transport configurations. It uses ServerContext to
+# manage shared dependencies and configuration.
 #
 class MCPExt::ServerFactory
   # Mutable attributes structure for server configuration
@@ -54,22 +55,52 @@ class MCPExt::ServerFactory
 
   # Builds and configures the MCP server
   #
-  # @return [Resol::Service::Value] a service result containing a proc to start the server
+  # @return [Proc] a proc to start the server
+  # @raise [StandardError] if transport handler fails
   #
   # @example Build a server configuration
   #   factory = MCPExt::ServerFactory.with_defaults
   #   transport = Entities::Transport.new(type: :stdio, data: {})
-  #   result = factory.with_transport(transport).build
-  #   if result.success?
-  #     start_server = result.value!
-  #     # start_server.call to start the server
-  #   end
+  #   start_server = factory.with_transport(transport).build
+  #   start_server.call # to start the server
   def build
+    configuration = MCP::Configuration.new(
+      protocol_version: validate_mcp_protocol_version!(@attributes.transport.data[:mcp_version]),
+    )
+
     server = MCP::Server.new(
       name: @name,
       tools: @attributes.tools,
+      configuration:,
     )
 
-    MCPExt::TransportHandler.call!(@attributes.transport.with_server(server))
+    # Create server context with server and transport
+    context = MCPExt::ServerContext.new(
+      server:,
+      transport: @attributes.transport,
+    )
+
+    # Build transport with server context
+    MCPExt::TransportHandler.call!(context)
+  end
+
+  private
+
+  # Validates that the MCP protocol version is supported
+  #
+  # @param version [String] the protocol version to validate
+  # @return [void]
+  # @raise [StandardError] if the version is not supported
+  #
+  # @example Validate a protocol version
+  #   Application.validate_mcp_protocol_version!("2025-06-18")
+  #   # => nil (no error)
+  def validate_mcp_protocol_version!(version)
+    return version if MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS.include?(version)
+
+    raise <<~MESSAGE.rstrip!.gsub!(/[[:space:]]+/, " ")
+      Unsupported MCP protocol version: #{version}.
+      Supported versions: #{MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS.join(", ")}.
+    MESSAGE
   end
 end

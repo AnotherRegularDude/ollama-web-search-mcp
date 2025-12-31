@@ -14,10 +14,11 @@ class Cases::WebFetch < ServiceObject
 
   # Executes the web fetch and returns the results
   #
-  # @return [Resol::Service::Value] a service result containing a {Entities::WebFetchResult} object
+  # @return [Resol::Service::Value] a service result containing a {Entities::RemoteContent} object
   # @raise [ArgumentError] if the parameters are invalid
+  # @raise [self::Failure] if using `call!` and the service fails
   #
-  # @example Basic usage
+  # @example Basic usage with result monad
   #   result = Cases::WebFetch.call("https://example.com")
   #   if result.success?
   #     fetch_result = result.value!
@@ -25,6 +26,12 @@ class Cases::WebFetch < ServiceObject
   #     puts fetch_result.content
   #     puts fetch_result.links
   #   end
+  #
+  # @example Using call! to automatically unwrap the result
+  #   fetch_result = Cases::WebFetch.call!("https://example.com")
+  #   puts fetch_result.title
+  #   puts fetch_result.content
+  #   puts fetch_result.links
   #
   # @example Handling fetch errors
   #   result = Cases::WebFetch.call("https://nonexistent.com")
@@ -56,7 +63,7 @@ class Cases::WebFetch < ServiceObject
   #   # => {"title"=>"Example Domain", "content"=>"...", "links"=>["https://example.com/more"]}
   # @api private
   def fetch!
-    Adapters::OllamaGateway.process_web_fetch!(url: url)
+    Adapters::OllamaGateway.process_web_fetch!(url:)
   rescue Adapters::OllamaGateway::HTTPError => e
     fail!(:request_failed, { message: e.message })
   end
@@ -68,14 +75,15 @@ class Cases::WebFetch < ServiceObject
   # @example Map raw result to entity
   #   result = {"title"=>"Example", "content"=>"...", "links"=>["https://example.com/more"]}
   #   map_result!
-  #   # result is now an Entities::WebFetchResult object
+  #   # result is now an Entities::RemoteContent object
   # @api private
   def map_result!
-    self.result = Entities::WebFetchResult.new(
+    self.result = Entities::RemoteContent.new(
       title: result["title"],
-      url: url,
+      url:,
       content: result["content"],
-      links: result["links"],
+      related_content: result["related_content"].map { |link_data| Value::ContentPointer.new(link: link_data["url"]) },
+      source_type: :fetch,
     )
   end
 end

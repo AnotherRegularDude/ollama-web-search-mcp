@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+# Shared context for stubbing Ollama API requests in tests
+# Provides standardized request/response handling for both web_search and web_fetch operations
 shared_context "ollama request context" do
   def read_data
     File.read(__FILE__).scan(/\n__END__\n(.*)/m).flatten.first
   end
 
-  before { stub_const("Application::ENV", stub_env) }
   before do
+    stub_const("Application::ENV", stub_env)
     Application.instance_variable_set(:@fetch_api_key, nil)
     Adapters::OllamaGateway.instance_variables.each { Adapters::OllamaGateway.instance_variable_set(it, nil) }
   end
@@ -30,6 +32,7 @@ shared_context "ollama request context" do
   let(:data) { YAML.load(ERB.new(read_data).result(binding), symbolize_names: true) }
 
   let(:requests) { [] }
+
   let(:stub_env) { Hash["OLLAMA_API_KEY" => api_key] }
   let(:api_key) { "test key" }
 
@@ -40,7 +43,49 @@ end
 
 __END__
 
+# Standardized response format for web search operations
 search_response: |
-  { "results": [{ "title": "Title one", "url": "https://example.com/1", "content": "Content one" }, { "title": "Title two", "url": "https://example.com/2", "content": "Content two" }] }
+  {
+    "results": [
+      {
+        "title": "Example Search Result 1",
+        "url": "https://example.com/result1",
+        "content": "This is the content of the first search result.",
+        "related_content": [
+          {
+            "title": "Related Link 1",
+            "url": "https://example.com/related1"
+          }
+        ]
+      },
+      {
+        "title": "Example Search Result 2",
+        "url": "https://example.com/result2",
+        "content": "This is the content of the second search result.",
+        "related_content": [
+          {
+            "title": "Related Link 2",
+            "url": "https://example.com/related2"
+          }
+        ]
+      }
+    ]
+  }
+
+# Standardized response format for web fetch operations
 fetch_response: |
-  { "title": "Example Page", "content": "This is the content of the page.", "links": ["https://example.com", "https://example.com/about"] }
+  {
+    "title": "Example Web Page",
+    "url": "https://example.com",
+    "content": "This is the main content of the fetched web page.",
+    "related_content": [
+      {
+        "title": "Home Page",
+        "url": "https://example.com"
+      },
+      {
+        "title": "About Us",
+        "url": "https://example.com/about"
+      }
+    ]
+  }
