@@ -43,7 +43,7 @@ describe MCPExt::Tool::WebFetch do
         title: "Example Web Page",
         url:,
         content: "",
-        related_content: [],
+        links: [],
       }.to_json
     end
 
@@ -68,7 +68,7 @@ describe MCPExt::Tool::WebFetch do
         title: "Example Web Page",
         url:,
         content: "Content",
-        related_content: [{ url: "https://other.com/page" }],
+        links: ["https://other.com/page"],
       }.to_json
     end
 
@@ -98,7 +98,7 @@ describe MCPExt::Tool::WebFetch do
         title: "Example Web Page",
         url:,
         content: "This is the main content of the fetched web page.",
-        related_content: [],
+        links: [],
       }.to_json
     end
 
@@ -184,7 +184,7 @@ describe MCPExt::Tool::WebFetch do
           title: "Example Web Page",
           url:,
           content: long_content,
-          related_content: [],
+          links: [],
         }.to_json
       end
 

@@ -78,14 +78,5 @@ fetch_response: |
     "title": "Example Web Page",
     "url": "https://example.com",
     "content": "This is the main content of the fetched web page.",
-    "related_content": [
-      {
-        "title": "Home Page",
-        "url": "https://example.com"
-      },
-      {
-        "title": "About Us",
-        "url": "https://example.com/about"
-      }
-    ]
+    "links": ["https://example.com", "https://example.com/about"]
   }

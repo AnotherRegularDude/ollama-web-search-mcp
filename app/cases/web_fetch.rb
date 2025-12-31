@@ -82,7 +82,7 @@ class Cases::WebFetch < ServiceObject
       title: result["title"],
       url:,
       content: result["content"],
-      related_content: result["related_content"].map { |link_data| Value::ContentPointer.new(link: link_data["url"]) },
+      related_content: result["links"].map { |link| Value::ContentPointer.new(link:) },
       source_type: :fetch,
     )
   end
