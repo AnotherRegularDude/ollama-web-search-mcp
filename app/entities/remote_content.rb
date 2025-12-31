@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 
+# Entity representing remote content from web searches or direct fetches.
+#
+# This data structure encapsulates all information about remote content
+# retrieved from web operations, including search results and fetched pages.
+# It provides type-safe access to content metadata and related information.
+#
+# @see Cases::SearchWeb for web search operations
+# @see Cases::WebFetch for web content fetching
+# @see Value::ContentPointer for related content links
 class Entities::RemoteContent < AbstractStruct
   # @!attribute [r] title
   #   @return [String] the title of the content
