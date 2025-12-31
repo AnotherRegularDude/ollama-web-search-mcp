@@ -4,12 +4,16 @@ describe MCPExt::Tool::WebFetch do
   include_context "ollama request context"
 
   def run!
-    described_class.call(url:)
+    described_class.call(url:, **additional_options)
   end
 
   let(:web_action) { "web_fetch" }
   let(:url) { "https://example.com" }
   let(:response_body) { data[:fetch_response] }
+
+  let(:additional_options) { Hash[truncate:, max_chars:].compact }
+  let(:truncate) { nil }
+  let(:max_chars) { nil }
 
   let(:expected_output) do
     <<~TEXT.chomp
@@ -152,9 +156,7 @@ describe MCPExt::Tool::WebFetch do
 
   context "when truncate and max_chars parameters are provided" do
     context "with truncate: true" do
-      def run!
-        described_class.call(url:, truncate: true)
-      end
+      let(:truncate) { true }
 
       it "passes truncate parameter to formatter" do
         response = run!
@@ -165,9 +167,7 @@ describe MCPExt::Tool::WebFetch do
     end
 
     context "with truncate: false" do
-      def run!
-        described_class.call(url:, truncate: false)
-      end
+      let(:truncate) { false }
 
       it "passes truncate parameter to formatter" do
         response = run!
@@ -189,47 +189,39 @@ describe MCPExt::Tool::WebFetch do
       end
 
       context "with max_chars: 100" do
-        def run!
-          described_class.call(url:, max_chars: 100)
-        end
+        let(:max_chars) { 100 }
 
         it "passes max_chars parameter to formatter and truncates content" do
           response = run!
           expect(response).to be_a(MCP::Tool::Response)
           expect(requests.size).to eq(1)
-          # Content should be truncated to fit within max_chars limit
           content_text = response.content.first[:text]
-          expect(content_text.size).to be <= 100
+          expect(content_text.size).to eq(100)
         end
       end
 
       context "with max_chars: 5000" do
-        def run!
-          described_class.call(url:, max_chars: 5000)
-        end
+        let(:max_chars) { 5000 }
 
         it "passes max_chars parameter to formatter and truncates content" do
           response = run!
           expect(response).to be_a(MCP::Tool::Response)
           expect(requests.size).to eq(1)
-          # Content should be truncated to fit within max_chars limit
           content_text = response.content.first[:text]
-          expect(content_text.size).to be <= 5000
+          expect(content_text.size).to eq(5_000)
         end
       end
 
       context "with both truncate: true and max_chars: 1000" do
-        def run!
-          described_class.call(url:, truncate: true, max_chars: 1000)
-        end
+        let(:truncate) { true }
+        let(:max_chars) { 1000 }
 
         it "passes both parameters to formatter and truncates content" do
           response = run!
           expect(response).to be_a(MCP::Tool::Response)
           expect(requests.size).to eq(1)
-          # Content should be truncated to fit within max_chars limit
           content_text = response.content.first[:text]
-          expect(content_text.size).to be <= 1000
+          expect(content_text.size).to eq(1_000)
         end
       end
     end
