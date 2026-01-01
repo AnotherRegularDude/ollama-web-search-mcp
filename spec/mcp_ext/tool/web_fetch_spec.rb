@@ -31,6 +31,7 @@ describe MCPExt::Tool::WebFetch do
 
   it "returns formatted MCP response with rendered results" do
     response = run!
+
     expect(response).to be_a(MCP::Tool::Response)
     expect(response.content.first).to eq(type: "text", text: expected_output)
     expect(requests.size).to eq(1)

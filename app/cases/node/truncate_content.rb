@@ -31,7 +31,7 @@ class Cases::Node::TruncateContent < ServiceObject
 
   # @!attribute [r] remaining_length
   #   @return [Integer] the remaining character budget for content (default: 0)
-  option :remaining_length, Types::Integer, default: proc { 0 }
+  option :remaining_length, Types::Integer
 
   # Truncates content text within the root node structure
   #
@@ -56,11 +56,9 @@ class Cases::Node::TruncateContent < ServiceObject
   #   # Negative length: raises failure
   #   Cases::Node::TruncateContent.call(root_node, remaining_length: -10)
   def call
-    return success! if remaining_length.zero?
-    fail!(:small_token_limit, "Token limit smaller than empty layout size") if remaining_length.negative?
+    fail!(:small_token_limit, "Token limit smaller than empty layout size") unless remaining_length.positive?
 
     self.content_texts = find_all_content_texts(root_node)
-
     truncate_texts!
     success!
   end

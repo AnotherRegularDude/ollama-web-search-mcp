@@ -132,7 +132,7 @@ class Cases::Formatter::SearchResults < Cases::Formatter::Base
       children: [
         Value::Node.new(
           type: :content,
-          data: { text: result.content },
+          data: { text: result.content.dup },
         ),
       ],
     )

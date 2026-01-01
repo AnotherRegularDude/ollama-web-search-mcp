@@ -5,7 +5,7 @@ describe Cases::Formatter::Base do
 
   let(:options) { {} }
 
-  it "raises NotImplementedError when build_schema is not implemented" do
+  it "raises NotImplementedError" do
     expect { service.call(options: {}) }.to raise_error(NotImplementedError, " must implement build_schema")
   end
 end
