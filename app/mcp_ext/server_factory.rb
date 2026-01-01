@@ -12,6 +12,10 @@ class MCPExt::ServerFactory
 
   # Default name for the MCP server
   DEFAULT_NAME = "ollama-web-search"
+
+  # Supported MCP protocol versions
+  #
+  # @return [Array<String>] list of supported MCP protocol versions
   SUPPORTED_MCP_PROTOCOL_VERSIONS = MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS
 
   # Creates a new factory instance with default configuration
@@ -93,7 +97,6 @@ class MCPExt::ServerFactory
 
   # Validates that the MCP protocol version is supported
   #
-  # @param version [String] the protocol version to validate
   # @return [void]
   # @raise [StandardError] if the version is not supported
   #

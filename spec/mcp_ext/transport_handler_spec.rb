@@ -20,7 +20,7 @@ describe MCPExt::TransportHandler do
     expect(stdio_transport).to have_received(:open)
   end
 
-  context "when testing build_stdio_transport method directly" do
+  context "calling .build_stdio_transport method directly" do
     before do
       allow(MCPExt::TransportHandler::Stdio).to receive(:build_stdio_transport).and_call_original
     end
