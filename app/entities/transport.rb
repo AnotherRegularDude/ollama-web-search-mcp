@@ -34,4 +34,8 @@ class Entities::Transport < AbstractStruct
 
   attribute :type, Types::Symbol.enum(:stdio, :http)
   attribute :data, DATA_SCHEMA
+
+  def mcp_version
+    data[:mcp_version]
+  end
 end

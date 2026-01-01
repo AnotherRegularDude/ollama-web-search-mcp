@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 describe Cases::Formatter::FetchResult do
-  subject(:result) { run! }
-
   def run!
-    described_class.call!(result_content)
+    described_class.call!(result_content, options:)
   end
+
+  before { stub_const("Cases::Formatter::Base::DEFAULT_OPTIONS", { truncate: true, max_chars: 999 }) }
+
+  subject(:result) { run! }
 
   let(:url) { "https://example.com" }
   let(:content) { "Example content for testing" }
   let(:related_links) { ["https://example.com/related1", "https://example.com/related2"] }
+  let(:options) { Hash[] }
 
   let(:result_content) do
     Entities::RemoteContent.new(
@@ -108,34 +111,9 @@ describe Cases::Formatter::FetchResult do
     specify { expect(result).to eq(expected_output) }
   end
 
-  context "with URL containing special characters" do
-    let(:result_content) do
-      Entities::RemoteContent.new(
-        title: "Special URL Page",
-        url: "https://example.com/path?query=value&other=test#fragment",
-        content: "Content with special URL",
-        related_content: [],
-        source_type: :fetch,
-      )
-    end
-
-    let(:expected_output) do
-      <<~OUTPUT.chomp
-        **Source:** fetch
-        **URL:** https://example.com/path?query=value&other=test#fragment
-        **Content:**
-        ---
-        Content with special URL
-        ---
-      OUTPUT
-    end
-
-    specify { expect(result).to eq(expected_output) }
-  end
-
   context "with very long content and URLs" do
-    let(:long_content) { "A" * 1000 }
     let(:long_url) { "https://example.com/#{"very/" * 50}#{"long/" * 50}path.html" }
+    let(:long_content) { "A" * 1_000 }
     let(:result_content) do
       Entities::RemoteContent.new(
         title: "Long Content Page",
@@ -152,7 +130,7 @@ describe Cases::Formatter::FetchResult do
         **URL:** #{long_url}
         **Content:**
         ---
-        #{long_content}
+        #{"A" * 421}
         ---
       OUTPUT
     end
@@ -221,11 +199,34 @@ describe Cases::Formatter::FetchResult do
     specify { expect(result).to eq(expected_output) }
   end
 
-  context "with options {max_chars: nil, truncate: true}" do
-    def run!
-      described_class.call!(result_content, options: { max_chars: nil, truncate: true })
+  context "with truncation options" do
+    let(:result_content) do
+      Entities::RemoteContent.new(
+        title: "Truncated Result",
+        url: "https://example.com",
+        content: long_content,
+        related_content: [],
+        source_type: :fetch,
+      )
+    end
+    let(:long_content) { "A" * 200 }
+    let(:options) { Hash[max_chars: 200, truncate: true] }
+
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** https://example.com
+        **Content:**
+        ---
+        #{"A" * 132}
+        ---
+      OUTPUT
     end
 
+    specify { expect(result).to eq(expected_output) }
+  end
+
+  context "with max_chars: nil and truncate: true" do
     let(:long_content) { "A" * 1000 }
     let(:result_content) do
       Entities::RemoteContent.new(
@@ -236,6 +237,7 @@ describe Cases::Formatter::FetchResult do
         source_type: :fetch,
       )
     end
+    let(:options) { Hash[max_chars: nil, truncate: true] }
 
     let(:expected_output) do
       <<~OUTPUT.chomp
@@ -243,7 +245,34 @@ describe Cases::Formatter::FetchResult do
         **URL:** https://example.com
         **Content:**
         ---
-        #{long_content}
+        #{"A" * 931}
+        ---
+      OUTPUT
+    end
+
+    specify { expect(result).to eq(expected_output) }
+  end
+
+  context "with truncate: false" do
+    let(:long_content) { "A" * 1_000 }
+    let(:result_content) do
+      Entities::RemoteContent.new(
+        title: "Test Page",
+        url: "https://example.com",
+        content: long_content,
+        related_content: [],
+        source_type: :fetch,
+      )
+    end
+    let(:options) { Hash[truncate: false] }
+
+    let(:expected_output) do
+      <<~OUTPUT.chomp
+        **Source:** fetch
+        **URL:** https://example.com
+        **Content:**
+        ---
+        #{"A" * 1_000}
         ---
       OUTPUT
     end

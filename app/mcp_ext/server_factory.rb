@@ -12,6 +12,7 @@ class MCPExt::ServerFactory
 
   # Default name for the MCP server
   DEFAULT_NAME = "ollama-web-search"
+  SUPPORTED_MCP_PROTOCOL_VERSIONS = MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS
 
   # Creates a new factory instance with default configuration
   #
@@ -31,8 +32,8 @@ class MCPExt::ServerFactory
   # @example Create a new factory
   #   factory = MCPExt::ServerFactory.new("my-server")
   def initialize(name)
-    @name = name
-    @attributes = MutableAttributes.new(tools: [], transport: nil)
+    self.name = name
+    self.attributes = MutableAttributes.new(tools: [], transport: nil)
   end
 
   # Defines methods for setting mutable attributes
@@ -48,7 +49,7 @@ class MCPExt::ServerFactory
   #   @return [MCPExt::ServerFactory] self for chaining
   MutableAttributes.members.each do |member_name|
     define_method(:"with_#{member_name}") do |value|
-      @attributes[member_name] = value
+      attributes[member_name] = value
       self
     end
   end
@@ -64,20 +65,22 @@ class MCPExt::ServerFactory
   #   start_server = factory.with_transport(transport).build
   #   start_server.call # to start the server
   def build
+    validate_mcp_protocol_version!
+
     configuration = MCP::Configuration.new(
-      protocol_version: validate_mcp_protocol_version!(@attributes.transport.data[:mcp_version]),
+      protocol_version: attributes.transport.mcp_version,
     )
 
     server = MCP::Server.new(
-      name: @name,
-      tools: @attributes.tools,
+      name:,
+      tools: attributes.tools,
       configuration:,
     )
 
     # Create server context with server and transport
     context = MCPExt::ServerContext.new(
       server:,
-      transport: @attributes.transport,
+      transport: attributes.transport,
     )
 
     # Build transport with server context
@@ -85,6 +88,8 @@ class MCPExt::ServerFactory
   end
 
   private
+
+  attr_accessor :name, :attributes
 
   # Validates that the MCP protocol version is supported
   #
@@ -95,12 +100,13 @@ class MCPExt::ServerFactory
   # @example Validate a protocol version
   #   Application.validate_mcp_protocol_version!("2025-06-18")
   #   # => nil (no error)
-  def validate_mcp_protocol_version!(version)
-    return version if MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS.include?(version)
+  def validate_mcp_protocol_version!
+    version = attributes.transport.mcp_version
+    return if SUPPORTED_MCP_PROTOCOL_VERSIONS.include?(version)
 
     raise <<~MESSAGE.rstrip!.gsub!(/[[:space:]]+/, " ")
       Unsupported MCP protocol version: #{version}.
-      Supported versions: #{MCP::Configuration::SUPPORTED_PROTOCOL_VERSIONS.join(", ")}.
+      Supported versions: #{SUPPORTED_MCP_PROTOCOL_VERSIONS.join(", ")}.
     MESSAGE
   end
 end

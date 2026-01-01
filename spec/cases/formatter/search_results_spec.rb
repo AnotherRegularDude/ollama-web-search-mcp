@@ -62,8 +62,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with very long query strings" do
-    let(:long_query) { "A" * 100 }
-    let(:query) { long_query }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -74,6 +72,7 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:query) { "A" * 100 }
 
     let(:expected_output) do
       <<~OUTPUT.chomp
@@ -174,8 +173,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with very long content and URLs" do
-    let(:long_content) { "A" * 1000 }
-    let(:long_url) { "https://example.com/#{"very/" * 50}#{"long/" * 50}path.html" }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -186,6 +183,8 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:long_url) { "https://example.com/#{"very/" * 50}#{"long/" * 50}path.html" }
+    let(:long_content) { "A" * 1000 }
 
     let(:expected_output) do
       <<~OUTPUT.chomp
@@ -204,8 +203,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with unicode content and URLs" do
-    let(:unicode_content) { "Unicode content: 你好世界 🌟🎉" }
-    let(:unicode_url) { "https://example.com/你好" }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -216,6 +213,8 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:unicode_url) { "https://example.com/你好" }
+    let(:unicode_content) { "Unicode content: 你好世界 🌟🎉" }
 
     let(:expected_output) do
       <<~OUTPUT.chomp
@@ -234,7 +233,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with truncation options" do
-    let(:long_content) { "A" * 200 }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -245,6 +243,7 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:long_content) { "A" * 200 }
     let(:options) { Hash[max_chars: 200, truncate: true] }
 
     let(:expected_output) do
@@ -264,7 +263,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with max_chars: nil and truncate: true" do
-    let(:long_content) { "A" * 1000 }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -275,6 +273,7 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:long_content) { "A" * 1000 }
     let(:options) { Hash[max_chars: nil, truncate: true] }
 
     let(:expected_output) do
@@ -294,7 +293,6 @@ describe Cases::Formatter::SearchResults do
   end
 
   context "with truncate: false" do
-    let(:long_content) { "A" * 1000 }
     let(:results) do
       [
         Entities::RemoteContent.new(
@@ -305,6 +303,7 @@ describe Cases::Formatter::SearchResults do
         ),
       ]
     end
+    let(:long_content) { "A" * 1000 }
     let(:options) { Hash[truncate: false] }
 
     let(:expected_output) do

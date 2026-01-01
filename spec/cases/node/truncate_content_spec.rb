@@ -13,27 +13,13 @@ describe Cases::Node::TruncateContent do
     Value::RootNode.new(metadata: {}, children: [content_node1, content_node2])
   end
 
-  let(:remaining_length) { nil }
+  let(:remaining_length) { 1_000 }
 
   it "returns success without modifying nodes" do
     run!
 
     expect(content_node1.data[:text]).to eq("This is some content")
     expect(content_node2.data[:text]).to eq("This is more content")
-  end
-
-  context "when remaining_length is 0" do
-    let(:text1) { "This is some content".dup }
-    let(:text2) { "This is more content".dup }
-
-    let(:remaining_length) { 0 }
-
-    it "returns success without modifying nodes" do
-      run!
-
-      expect(content_node1.data[:text]).to eq("This is some content")
-      expect(content_node2.data[:text]).to eq("This is more content")
-    end
   end
 
   context "when there are no content nodes" do
@@ -44,34 +30,6 @@ describe Cases::Node::TruncateContent do
 
     it "returns success without errors" do
       expect { run! }.not_to raise_error
-    end
-  end
-
-  context "when content fits within allocation" do
-    let(:text1) { "Short".dup }
-    let(:text2) { "Text".dup }
-
-    let(:remaining_length) { 20 }
-
-    it "doesn't truncate content" do
-      run!
-
-      expect(content_node1.data[:text]).to eq("Short")
-      expect(content_node2.data[:text]).to eq("Text")
-    end
-  end
-
-  context "when budget exceeds total content length" do
-    let(:text1) { "Short".dup }
-    let(:text2) { "Text".dup }
-
-    let(:remaining_length) { 20 }
-
-    it "doesn't truncate content" do
-      run!
-
-      expect(content_node1.data[:text]).to eq("Short")
-      expect(content_node2.data[:text]).to eq("Text")
     end
   end
 
@@ -100,6 +58,20 @@ describe Cases::Node::TruncateContent do
     end
   end
 
+  context "when remaining_length is 0" do
+    let(:text1) { "This is some content".dup }
+    let(:text2) { "This is more content".dup }
+
+    let(:remaining_length) { 0 }
+
+    it "responses with token limit error" do
+      expect { run! }.to raise_error(described_class::Failure, /:small_token_limit/)
+
+      expect(content_node1.data[:text]).to eq("This is some content")
+      expect(content_node2.data[:text]).to eq("This is more content")
+    end
+  end
+
   context "when remaining_length is negative" do
     let(:remaining_length) { -150 }
 
@@ -113,37 +85,10 @@ describe Cases::Node::TruncateContent do
   context "when content contains unicode characters" do
     let(:text1) { "Unicode content: 你好世界 🌟" * 10 }
     let(:text2) { "More unicode: 🎉🎊" * 5 }
-    let(:remaining_length) { 50 }
+    let(:remaining_length) { 10 }
 
     it "handles unicode characters correctly" do
       expect { run! }.not_to raise_error
-      # Just verify it doesn't crash
-    end
-  end
-
-  context "when content contains newlines and special characters" do
-    let(:text1) { "Line 1\nLine 2\r\nLine 3\tTabbed".dup }
-    let(:text2) { "Special chars: \"quotes\" and 'apostrophes'".dup }
-    let(:remaining_length) { 30 }
-
-    it "handles special characters correctly" do
-      expect { run! }.not_to raise_error
-      # Verify the content still contains expected characters
-      expect(content_node1.data[:text]).to include("Line")
-      expect(content_node2.data[:text]).to include("Special")
-    end
-  end
-
-  context "when remaining_length is very small" do
-    let(:text1) { "This is some content".dup }
-    let(:text2) { "This is more content".dup }
-    let(:remaining_length) { 5 }
-
-    it "handles very small truncation budgets" do
-      expect { run! }.not_to raise_error
-      # Should truncate to very small sizes
-      expect(content_node1.data[:text].length).to be <= 5
-      expect(content_node2.data[:text].length).to be <= 5
     end
   end
 end

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 describe MCPExt::ServerFactory do
+  before do
+    stub_const("MCPExt::ServerFactory::SUPPORTED_MCP_PROTOCOL_VERSIONS", %w[2025-06-18 2025-03-26 2024-11-05"])
+  end
+
   subject(:factory) { described_class.with_defaults }
 
   it "creates a factory with default tools" do

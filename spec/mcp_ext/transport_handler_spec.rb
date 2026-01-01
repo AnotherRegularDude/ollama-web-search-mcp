@@ -1,60 +1,50 @@
 # frozen_string_literal: true
 
 describe MCPExt::TransportHandler do
-  subject(:run!) { described_class.call(context) }
+  before do
+    allow(MCPExt::TransportHandler::Stdio).to receive(:build_stdio_transport).with(context)
+                                                                             .and_return(stdio_transport)
+  end
+
+  subject(:returned_launcher) { described_class.call!(context) }
 
   let(:server) { MCP::Server.new(name: "test-server", tools: []) }
   let(:stdio_transport) { instance_double(MCP::Server::Transports::StdioTransport, open: nil) }
   let(:transport) { Entities::Transport.new(type: :stdio, data: {}) }
   let(:context) { MCPExt::ServerContext.new(server:, transport:) }
 
-  context "when transport type is stdio" do
+  it "delegates to stdio handler and returns callable that opens the stdio transport" do
+    expect(returned_launcher).to be_a(Proc)
+    returned_launcher.call
+
+    expect(stdio_transport).to have_received(:open)
+  end
+
+  context "when testing build_stdio_transport method directly" do
     before do
-      allow(MCPExt::TransportHandler::Stdio)
-        .to receive(:build_stdio_transport)
-        .with(context)
-        .and_return(stdio_transport)
+      allow(MCPExt::TransportHandler::Stdio).to receive(:build_stdio_transport).and_call_original
     end
 
-    it "delegates to stdio handler and returns callable that opens the stdio transport" do
-      result = run!
-      expect(result).to be_success
-      launcher_proc = result.value!
-      expect(launcher_proc).to be_a(Proc)
-      launcher_proc.call
+    it "creates a new StdioTransport instance with the given server" do
+      result = MCPExt::TransportHandler::Stdio.build_stdio_transport(context)
+      expect(result).to be_a(MCP::Server::Transports::StdioTransport)
+      transport_instance = result
 
-      expect(stdio_transport).to have_received(:open)
-    end
-
-    context "when testing build_stdio_transport method directly" do
-      before do
-        allow(MCPExt::TransportHandler::Stdio)
-          .to receive(:build_stdio_transport)
-          .and_call_original
-      end
-
-      it "creates a new StdioTransport instance with the given server" do
-        result = MCPExt::TransportHandler::Stdio.build_stdio_transport(context)
-        expect(result).to be_a(MCP::Server::Transports::StdioTransport)
-        transport_instance = result
-
-        expect(transport_instance).to be_a(MCP::Server::Transports::StdioTransport)
-      end
+      expect(transport_instance).to be_a(MCP::Server::Transports::StdioTransport)
     end
   end
 
   context "when transport type is http" do
     before do
       allow(server).to receive(:handle_json).and_return(server_response)
-      allow(MCPExt::TransportHandler::Http)
-        .to receive(:puma_launcher_from) do |config|
-          launched_configs << config
-          launcher
-        end
+      allow(MCPExt::TransportHandler::Http).to receive(:puma_launcher_from) do |config|
+        launched_configs << config
+        launcher
+      end
     end
 
-    let(:server_response) { "serialized response" }
     let(:server) { MCP::Server.new(name: "http-test", tools: []) }
+    let(:server_response) { "serialized response" }
     let(:transport) { Entities::Transport.new(type: :http, data: transport_data) }
     let(:context) { MCPExt::ServerContext.new(server:, transport:) }
     let(:transport_data) { { port: } }
@@ -65,17 +55,14 @@ describe MCPExt::TransportHandler do
     let(:config) { launched_configs.first.clamp.user_options }
 
     it "builds HTTP config, forwards requests to the server, and returns a runnable launcher" do
-      result = run!
-      expect(result).to be_success
-      launcher_proc = result.value!
-      expect(launcher_proc).to be_a(Proc)
+      expect(returned_launcher).to be_a(Proc)
       expect(launched_configs.size).to eq(1)
       expect(config).to include(
         min_threads: 1,
         max_threads: 5,
         binds: ["tcp://0.0.0.0:9292"],
       )
-      launcher_proc.call
+      returned_launcher.call
       expect(launcher).to have_received(:run)
 
       env = Rack::MockRequest.env_for("/mcp", method: "POST", input: "payload")
@@ -92,7 +79,7 @@ describe MCPExt::TransportHandler do
       let(:context) { MCPExt::ServerContext.new(server:, transport:) }
 
       it "uses the default HTTP server port" do
-        run!
+        returned_launcher
         expect(config).to include(
           min_threads: 1,
           max_threads: 5,

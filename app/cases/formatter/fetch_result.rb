@@ -153,7 +153,7 @@ class Cases::Formatter::FetchResult < Cases::Formatter::Base
   def build_content_node
     Value::Node.new(
       type: :content,
-      data: { text: result.content },
+      data: { text: result.content.dup },
     )
   end
 
