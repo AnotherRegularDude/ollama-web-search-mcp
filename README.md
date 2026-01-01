@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that provides web search and web fetch cap
 
 ## Quickstart: Run the MCP Server
 
-The server needs Ruby 3.4.7, Bundler, and an `OLLAMA_API_KEY`.
+The server needs Ruby 3.4.8, Bundler, and an `OLLAMA_API_KEY`.
 
 1. Install dependencies:
    ```bash
@@ -191,7 +191,7 @@ export MCP_PROTOCOL_VERSION="2025-03-26"
 ```
 
 ### Configuration Files
-- `.ruby-version` - Specifies Ruby version (3.4.7)
+- `.ruby-version` - Specifies Ruby version (3.4.8)
 - `Gemfile` - Ruby dependencies
 - `config/application.rb` - Main application configuration
 
@@ -598,7 +598,7 @@ When testing HTTP requests and responses that involve JSON data, use these best 
          title: "Related Link",
          url: "https://example.com/related"
        }
-     ]
+       ]
    )
    ```
 
